@@ -1,0 +1,52 @@
+{
+  "fill" : {
+    "automatic-gradient" : "display-p3:0.89879,0.96783,0.95922,1.00000"
+  },
+  "groups" : [
+    {
+      "layers" : [
+        {
+          "fill-specializations" : [
+            {
+              "value" : "automatic"
+            },
+            {
+              "appearance" : "dark",
+              "value" : {
+                "solid" : "display-p3:0.93207,0.96783,0.89327,1.00000"
+              }
+            },
+            {
+              "appearance" : "tinted",
+              "value" : {
+                "solid" : "display-p3:1.00000,1.00000,1.00000,1.00000"
+              }
+            }
+          ],
+          "image-name" : "AutomataStudio.svg",
+          "name" : "AutomataStudio",
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              -0.13294445640326558,
+              -5.524580743861634
+            ]
+          }
+        }
+      ],
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    }
+  ],
+  "supported-platforms" : {
+    "squares" : [
+      "macOS"
+    ]
+  }
+}

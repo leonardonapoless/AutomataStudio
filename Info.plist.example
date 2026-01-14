@@ -1,0 +1,31 @@
+<!-- 
+to properly declare a custom UTType, add this to Info.plist:
+
+<key>UTExportedTypeDeclarations</key>
+<array>
+    <dict>
+        <key>UTTypeIdentifier</key>
+        <string>com.automatastudio.project</string>
+        <key>UTTypeDescription</key>
+        <string>Automata Studio Project</string>
+        <key>UTTypeConformsTo</key>
+        <array>
+            <string>public.json</string>
+        </array>
+        <key>UTTypeTagSpecification</key>
+        <dict>
+            <key>public.filename-extension</key>
+            <array>
+                <string>automata</string>
+            </array>
+            <key>public.mime-type</key>
+            <array>
+                <string>application/json</string>
+            </array>
+        </dict>
+    </dict>
+</array>
+
+then use:
+UTType(exportedAs: "com.automatastudio.project")
+-->
