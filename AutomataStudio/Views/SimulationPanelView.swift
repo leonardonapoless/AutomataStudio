@@ -11,7 +11,6 @@ struct SimulationPanelView: View {
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 20) {
-                // input section
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Input String")
                         .font(.headline)
@@ -25,7 +24,6 @@ struct SimulationPanelView: View {
                         .font(.system(.body, design: .monospaced))
                 }
                 
-                // controls
                 HStack(spacing: 12) {
                     Button {
                         runSimulation()
@@ -33,7 +31,7 @@ struct SimulationPanelView: View {
                         Label("Run", systemImage: "play.fill")
                             .frame(maxWidth: .infinity)
                     }
-                    .buttonStyle(.glass)
+                    .buttonStyle(.borderedProminent)
                     .controlSize(.large)
                     .disabled(input.isEmpty || isRunning)
                     
@@ -42,7 +40,7 @@ struct SimulationPanelView: View {
                     } label: {
                         Label("Step", systemImage: "chevron.right")
                     }
-                    .buttonStyle(.glass)
+                    .buttonStyle(.bordered)
                     .controlSize(.large)
                     .disabled(input.isEmpty || isRunning)
                     
@@ -52,11 +50,10 @@ struct SimulationPanelView: View {
                     } label: {
                         Image(systemName: "trash")
                     }
-                    .buttonStyle(.glass)
+                    .buttonStyle(.bordered)
                     .controlSize(.large)
                 }
                 
-                // results area
                 if let result = simulationResult {
                     VStack(alignment: .leading, spacing: 12) {
                         HStack {
@@ -119,13 +116,10 @@ struct SimulationPanelView: View {
         .presentationDragIndicator(.hidden)
     }
     
-    // simulation logic below
-    // keeping it simple for now, would be better to move this to a dedicated engine later
     
     private func runSimulation() {
         isRunning = true
         
-        // simulate some thinking time for better ux
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             let accepted = simulateAutomaton(input: input)
             withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
@@ -140,7 +134,6 @@ struct SimulationPanelView: View {
     }
     
     private func stepSimulation() {
-        // TODO: implement step-by-step
     }
     
     private func simulateAutomaton(input: String) -> Bool {

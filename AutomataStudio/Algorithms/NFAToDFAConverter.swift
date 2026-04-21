@@ -26,52 +26,50 @@ struct NFAToDFAConverter {
     }
     
     private mutating func performConversion() -> Automaton {
-        // calculate epsilon closure of start state
         guard let startState = nfa.getStartState() else {
             return createEmptyDFA()
         }
         
         let startClosure = epsilonClosure(of: [startState.id])
         
-        // initialize worklist with start state set
         var worklist: [Set<UUID>] = [startClosure]
         stateMap[startClosure] = UUID()
         
-        // process each state set
         while !worklist.isEmpty {
             let currentStateSet = worklist.removeFirst()
             let currentDFAStateId = stateMap[currentStateSet]!
             
-            // create DFA state
             let dfaState = createDFAState(from: currentStateSet, id: currentDFAStateId)
             dfaStates.append(dfaState)
             
-            // process each symbol in alphabet
+            var targetMap: [UUID: Set<String>] = [:]
+            
             for symbol in nfa.alphabet {
                 let nextStateSet = move(currentStateSet, on: symbol)
                 let epsilonClosureNext = epsilonClosure(of: nextStateSet)
                 
                 if !epsilonClosureNext.isEmpty {
-                    // check if this state set already exists
                     if stateMap[epsilonClosureNext] == nil {
-                        // new state set - add to worklist
                         let newDFAStateId = UUID()
                         stateMap[epsilonClosureNext] = newDFAStateId
                         worklist.append(epsilonClosureNext)
                     }
                     
-                    // create transition
-                    let transition = Transition(
-                        fromStateId: currentDFAStateId,
-                        toStateId: stateMap[epsilonClosureNext]!,
-                        symbols: [symbol]
-                    )
-                    dfaTransitions.append(transition)
+                    let targetId = stateMap[epsilonClosureNext]!
+                    targetMap[targetId, default: []].insert(symbol)
                 }
+            }
+            
+            for (targetId, symbols) in targetMap {
+                let transition = Transition(
+                    fromStateId: currentDFAStateId,
+                    toStateId: targetId,
+                    symbols: Array(symbols).sorted()
+                )
+                dfaTransitions.append(transition)
             }
         }
         
-        // create final DFA
         return createFinalDFA()
     }
     
@@ -82,7 +80,6 @@ struct NFAToDFAConverter {
         while !worklist.isEmpty {
             let currentState = worklist.removeFirst()
             
-            // find all epsilon transitions from current state
             let epsilonTransitions = nfa.getTransitions(from: currentState)
                 .filter { $0.isEpsilon }
             
@@ -115,18 +112,14 @@ struct NFAToDFAConverter {
     private func createDFAState(from stateSet: Set<UUID>, id: UUID) -> AutomatonState {
         let nfaStates = stateSet.compactMap { nfa.getState(by: $0) }
         
-        // determine if this is a start state
         let isStart = stateSet.contains(nfa.getStartState()?.id ?? UUID())
         
-        // determine if this is an accepting state
         let acceptingStates = Set(nfa.getAcceptingStates().map { $0.id })
         let isAccepting = !stateSet.intersection(acceptingStates).isEmpty
         
-        // create state name
         let stateNames = nfaStates.map { $0.displayName }.sorted()
         let name = "{\(stateNames.joined(separator: ","))}"
         
-        // calculate position (center of NFA states)
         let positions = nfaStates.map { $0.position }
         let count = max(positions.count, 1)
         let avgX = positions.map { $0.x }.reduce(0, +) / CGFloat(count)

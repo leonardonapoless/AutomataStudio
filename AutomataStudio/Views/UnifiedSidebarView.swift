@@ -1,10 +1,3 @@
-//
-//  UnifiedSidebarView.swift
-//  AutomataStudio
-//
-//  Combined Navigator and Inspector panel
-//
-
 import SwiftUI
 
 struct UnifiedSidebarView: View {
@@ -23,14 +16,13 @@ struct UnifiedSidebarView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // Tab Picker
             Picker("Mode", selection: $selectedTab) {
                 ForEach(SidebarTab.allCases, id: \.self) { tab in
                     Text(tab.rawValue).tag(tab)
                 }
             }
             .pickerStyle(.segmented)
-            .glassEffect()
+            .labelsHidden()
             .padding(.horizontal)
             .padding(.vertical, 8)
             
@@ -53,7 +45,6 @@ struct UnifiedSidebarView: View {
                 )
             }
         }
-        // Auto-switch to inspector on selection
         .onChange(of: selectedStates) { _, new in
             if !new.isEmpty { selectedTab = .inspector }
         }
@@ -85,7 +76,6 @@ struct NavigatorView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // Search
             HStack {
                 Image(systemName: "magnifyingglass")
                     .foregroundColor(.secondary)
@@ -190,7 +180,6 @@ struct InspectorContentView: View {
                     Divider()
                     StatisticsSection(automaton: automaton, viewModel: viewModel)
                 } else {
-                    // Selection Context
                     if !selectedStates.isEmpty {
                         if selectedStates.count == 1, let state = automaton.getState(by: selectedStates.first!) {
                             StatePropertiesSection(state: state, viewModel: viewModel)
@@ -279,27 +268,12 @@ struct StatePropertiesSection: View {
         GroupBox("State: \(state.displayName)") {
             VStack(alignment: .leading, spacing: 12) {
                 LabeledContent("Name") {
-                    TextField("Name", text: Binding(
-                        get: { state.name },
-                        set: { _ in } // changes handled by onSubmit or binding in VM if strictly needed, but VM updates based on selection
-                    ))
-                    .onSubmit { viewModel.updateSelectedState() } // assuming VM reads from its @Published selection or we need to bind strictly
-                    // Actually, for the TextField to work live with the Struct-based model and VM:
-                    // The binding gets value from `state` (which is passed in).
-                    // The VM needs to know clearly what to update.
-                    // Let's assume standard VM patterns: user types, we likely need a local binding or the VM needs to handle the `set`.
-                    // For now, implementing simple binding proxy:
-                    .onChange(of: state.name) { _, _ in viewModel.updateSelectedState() } // trigger update if logic allows, or rely on onSubmit
-                    .textFieldStyle(.plain)
-                    .multilineTextAlignment(.trailing)
+                    TextField("Name", text: $viewModel.editingStateName)
+                        .onSubmit { viewModel.updateSelectedState() }
+                        .textFieldStyle(.plain)
+                        .multilineTextAlignment(.trailing)
                 }
-                
-                LabeledContent("Position") {
-                    Text("\(Int(state.position.x)), \(Int(state.position.y))")
-                        .monospacedDigit()
-                        .foregroundStyle(.secondary)
-                }
-                
+
                 Divider()
                 
                 Toggle("Start State", isOn: Binding(
@@ -311,11 +285,10 @@ struct StatePropertiesSection: View {
                     get: { state.isAccepting },
                     set: { _ in viewModel.toggleAcceptingState() }
                 ))
-                .padding(.vertical, 4)
-        }
-        .groupBoxStyle(GlassGroupBoxStyle())
+            }
             .padding(.vertical, 4)
         }
+        .groupBoxStyle(GlassGroupBoxStyle())
     }
 }
 
@@ -327,18 +300,15 @@ struct TransitionPropertiesSection: View {
         GroupBox("Transition") {
             VStack(alignment: .leading, spacing: 12) {
                 LabeledContent("Symbols") {
-                    TextField("e.g. a,b", text: Binding(
-                        get: { transition.displaySymbols },
-                        set: { _ in } // handled by submit
-                    ))
-                    .onSubmit { viewModel.updateSelectedTransition() }
-                    .textFieldStyle(.plain)
-                    .multilineTextAlignment(.trailing)
+                    TextField("e.g. a,b", text: $viewModel.editingTransitionSymbols)
+                        .onSubmit { viewModel.updateSelectedTransition() }
+                        .textFieldStyle(.plain)
+                        .multilineTextAlignment(.trailing)
                 }
                 
                 Toggle("Epsilon (ε)", isOn: Binding(
                     get: { transition.isEpsilon },
-                    set: { _ in viewModel.addEpsilonTransition() } // logic in VM toggles/adds epsilon
+                    set: { _ in viewModel.addEpsilonTransition() }
                 ))
             }
             .padding(.vertical, 4)

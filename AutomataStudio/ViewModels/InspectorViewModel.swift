@@ -41,7 +41,6 @@ class InspectorViewModel: ObservableObject {
     func toggleStartState() {
         guard var state = selectedState else { return }
         
-        // if making this state start, remove start from others
         if !state.isStart {
             for var otherState in automaton.states {
                 if otherState.isStart {

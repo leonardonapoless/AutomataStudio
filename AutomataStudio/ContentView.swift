@@ -3,11 +3,10 @@ import SwiftUI
 struct ContentView: View {
     @Binding var document: AutomataDocument
     @State private var selectedStates: Set<UUID> = []
-    @State private var canvasMode: AutomataStudio.CanvasMode = .view
+    @State private var canvasMode: AutomataStudio.CanvasMode = .select
     
     var body: some View {
         NavigationSplitView {
-            // sidebar
             VStack(alignment: .leading, spacing: 8) {
                 Text("Automaton")
                     .font(.headline)
@@ -25,9 +24,7 @@ struct ContentView: View {
             .padding()
             .navigationSplitViewColumnWidth(min: 200, ideal: 250)
         } content: {
-            // main canvas area
             VStack(spacing: 0) {
-                // simple toolbar
                 HStack {
                     Picker("Mode", selection: $canvasMode) {
                         ForEach(AutomataStudio.CanvasMode.allCases, id: \.self) { mode in
@@ -49,13 +46,11 @@ struct ContentView: View {
                 
                 Divider()
                 
-                // simple canvas
                 GeometryReader { geometry in
                     ZStack {
                         Rectangle()
                             .fill(.ultraThinMaterial)
                         
-                        // draw states
                         ForEach(document.automaton.states) { state in
                             StateView(state: state, isSelected: selectedStates.contains(state.id))
                                 .onTapGesture {
@@ -78,7 +73,6 @@ struct ContentView: View {
                 }
             }
         } detail: {
-            // inspector
             VStack(alignment: .leading, spacing: 12) {
                 Text("Inspector")
                     .font(.headline)
@@ -133,16 +127,10 @@ struct ContentView: View {
     // MARK: - Context Menu Actions
     
     private func handleStateTap(_ state: AutomatonState) {
-        if canvasMode == .view {
-            selectedStates = [state.id]
-        } else if canvasMode == .delete {
-            document.automaton.removeState(state.id)
-            selectedStates.remove(state.id)
-        }
+        selectedStates = [state.id]
     }
     
     private func setAsInitial(_ state: AutomatonState) {
-        // remove start from all other states
         for var otherState in document.automaton.states {
             if otherState.isStart && otherState.id != state.id {
                 otherState.isStart = false
@@ -150,7 +138,6 @@ struct ContentView: View {
             }
         }
         
-        // set this state as start
         var updatedState = state
         updatedState.isStart = true
         document.automaton.updateState(updatedState)
@@ -163,7 +150,6 @@ struct ContentView: View {
     }
     
     private func renameState(_ state: AutomatonState) {
-        // TODO: implement rename dialog
         print("Rename state: \(state.name)")
     }
     
@@ -173,12 +159,10 @@ struct ContentView: View {
     }
     
     private func copyState(_ state: AutomatonState) {
-        // TODO: implement clipboard functionality
         print("Copy state: \(state.name)")
     }
     
     private func pasteState() {
-        // TODO: implement clipboard functionality
         print("Paste state")
     }
 }
@@ -189,7 +173,6 @@ struct StateView: View {
     
     var body: some View {
         ZStack {
-            // state circle
             Circle()
                 .fill(stateColor)
                 .frame(width: 40, height: 40)
@@ -198,7 +181,6 @@ struct StateView: View {
                         .stroke(.primary, lineWidth: isSelected ? 3 : 1)
                 )
             
-            // start state indicator
             if state.isStart {
                 Circle()
                     .fill(.blue)
@@ -206,14 +188,12 @@ struct StateView: View {
                     .offset(x: -30, y: 0)
             }
             
-            // accepting state indicator
             if state.isAccepting {
                 Circle()
                     .stroke(.green, lineWidth: 2)
                     .frame(width: 44, height: 44)
             }
             
-            // state label
             Text(state.displayName)
                 .font(.caption)
                 .fontWeight(.medium)

@@ -10,14 +10,12 @@ struct ExportUtilities {
         dot += "  rankdir=LR;\n"
         dot += "  node [shape=circle];\n\n"
         
-        // add states
         for state in automaton.states {
             let shape = state.isAccepting ? "doublecircle" : "circle"
             let label = state.displayName
             dot += "  \"\(state.id)\" [shape=\(shape), label=\"\(label)\"];\n"
         }
         
-        // add start state arrow
         if let startState = automaton.getStartState() {
             dot += "  \"start\" [shape=point];\n"
             dot += "  \"start\" -> \"\(startState.id)\";\n"
@@ -25,7 +23,6 @@ struct ExportUtilities {
         
         dot += "\n"
         
-        // add transitions
         for transition in automaton.transitions {
             let fromState = automaton.getState(by: transition.fromStateId)
             let toState = automaton.getState(by: transition.toStateId)
@@ -43,8 +40,6 @@ struct ExportUtilities {
     // MARK: - Image Export
     
     static func exportToPNG(_ automaton: Automaton, size: CGSize = CGSize(width: 800, height: 600)) -> Data? {
-        // this would require more complex rendering
-        // for now, return placeholder data
         return "PNG placeholder".data(using: .utf8)
     }
     
@@ -52,31 +47,31 @@ struct ExportUtilities {
         var svg = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
         svg += "<svg width=\"\(Int(size.width))\" height=\"\(Int(size.height))\" xmlns=\"http://www.w3.org/2000/svg\">\n"
         
-        // add states
+        svg += "  <defs>\n"
+        svg += "    <marker id=\"arrowhead\" markerWidth=\"10\" markerHeight=\"7\" refX=\"9\" refY=\"3.5\" orient=\"auto\">\n"
+        svg += "      <polygon points=\"0 0, 10 3.5, 0 7\" fill=\"black\"/>\n"
+        svg += "    </marker>\n"
+        svg += "  </defs>\n"
+        
         for state in automaton.states {
             let x = Int(state.position.x)
             let y = Int(state.position.y)
             let radius = 20
             
             if state.isAccepting {
-                // outer circle for accepting states
                 svg += "  <circle cx=\"\(x)\" cy=\"\(y)\" r=\"\(radius + 5)\" fill=\"none\" stroke=\"black\" stroke-width=\"2\"/>\n"
             }
             
-            // main circle
             svg += "  <circle cx=\"\(x)\" cy=\"\(y)\" r=\"\(radius)\" fill=\"lightblue\" stroke=\"black\" stroke-width=\"2\"/>\n"
             
-            // state label
             svg += "  <text x=\"\(x)\" y=\"\(y + 5)\" text-anchor=\"middle\" font-family=\"Arial\" font-size=\"12\">\(state.displayName)</text>\n"
             
-            // start state indicator
             if state.isStart {
                 svg += "  <circle cx=\"\(x - 30)\" cy=\"\(y)\" r=\"5\" fill=\"blue\"/>\n"
                 svg += "  <line x1=\"\(x - 25)\" y1=\"\(y)\" x2=\"\(x - 20)\" y2=\"\(y)\" stroke=\"black\" stroke-width=\"2\"/>\n"
             }
         }
         
-        // add transitions
         for transition in automaton.transitions {
             let fromState = automaton.getState(by: transition.fromStateId)
             let toState = automaton.getState(by: transition.toStateId)
@@ -87,22 +82,13 @@ struct ExportUtilities {
                 let x2 = Int(to.position.x)
                 let y2 = Int(to.position.y)
                 
-                // arrow line
                 svg += "  <line x1=\"\(x1)\" y1=\"\(y1)\" x2=\"\(x2)\" y2=\"\(y2)\" stroke=\"black\" stroke-width=\"2\" marker-end=\"url(#arrowhead)\"/>\n"
                 
-                // transition label
                 let midX = (x1 + x2) / 2
                 let midY = (y1 + y2) / 2
                 svg += "  <text x=\"\(midX)\" y=\"\(midY - 5)\" text-anchor=\"middle\" font-family=\"Arial\" font-size=\"10\">\(transition.displaySymbols)</text>\n"
             }
         }
-        
-        // arrow marker definition
-        svg += "  <defs>\n"
-        svg += "    <marker id=\"arrowhead\" markerWidth=\"10\" markerHeight=\"7\" refX=\"9\" refY=\"3.5\" orient=\"auto\">\n"
-        svg += "      <polygon points=\"0 0, 10 3.5, 0 7\" fill=\"black\"/>\n"
-        svg += "    </marker>\n"
-        svg += "  </defs>\n"
         
         svg += "</svg>"
         return svg

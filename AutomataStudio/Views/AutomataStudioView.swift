@@ -6,22 +6,12 @@ struct AutomataStudioView: View {
     @StateObject private var canvasViewModel = CanvasViewModel()
     @StateObject private var inspectorViewModel = InspectorViewModel()
     
-    // selection state
     @State private var selectedStates: Set<UUID> = []
     @State private var selectedTransitions: Set<UUID> = []
-    @State private var canvasMode: CanvasMode = .view
+    @State private var canvasMode: CanvasMode = .select
     
-    // ui state
-    @State private var showInspector = true
     @State private var showSimulation = false
     @State private var simulationInput = ""
-    @State private var showDeleteConfirmation = false
-    @State private var itemToDelete: DeleteTarget?
-    
-    private enum DeleteTarget {
-        case selection
-        case specific(at: CGPoint)
-    }
     
     var body: some View {
         NavigationSplitView {
@@ -33,37 +23,24 @@ struct AutomataStudioView: View {
             )
             .navigationSplitViewColumnWidth(min: 250, ideal: 300)
         } detail: {
-            ZStack {
-                AutomataCanvasView(
-                    automaton: document.automaton,
-                    canvasMode: $canvasMode,
-                    selectedStates: $selectedStates,
-                    selectedTransitions: $selectedTransitions,
-                    viewModel: canvasViewModel,
-                    onRenameState: { stateId in
-                        // no need to set showInspector anymore, unified view handles it
-                        if let state = document.automaton.getState(by: stateId) {
-                            inspectorViewModel.selectState(state)
-                        }
-                    },
-                    onEditTransition: { transitionId in
-                        if let transition = document.automaton.getTransitions(from: UUID(), to: UUID()).first(where: { $0.id == transitionId }) ?? document.automaton.transitions.first(where: { $0.id == transitionId }) {
-                            inspectorViewModel.selectTransition(transition)
-                        }
+            CanvasView(
+                automaton: document.automaton,
+                canvasMode: $canvasMode,
+                selectedStates: $selectedStates,
+                selectedTransitions: $selectedTransitions,
+                viewModel: canvasViewModel,
+                onRenameState: { stateId in
+                    if let state = document.automaton.getState(by: stateId) {
+                        inspectorViewModel.selectState(state)
                     }
-                )
-                .background(Color(nsColor: .windowBackgroundColor))
-                
-                // mode indicator overlay
-                VStack {
-                    Spacer()
-                    HStack {
-                        Spacer()
-                        ModeIndicator(mode: canvasMode)
-                            .padding()
+                },
+                onEditTransition: { transitionId in
+                    if let transition = canvasViewModel.automaton.transitions.first(where: { $0.id == transitionId }) {
+                        inspectorViewModel.selectTransition(transition)
                     }
                 }
-            }
+            )
+            .background(Color(nsColor: .windowBackgroundColor))
             .toolbar {
                 ToolbarItemGroup(placement: .primaryAction) {
                     ControlGroup {
@@ -74,21 +51,18 @@ struct AutomataStudioView: View {
                             )) {
                                 Label(mode.rawValue, systemImage: mode.systemImage)
                             }
-                            .help("\(mode.rawValue) Mode (\(getShortcut(for: mode)))")
+                            .help("\(mode.rawValue) Mode (\(shortcutLabel(for: mode)))")
                         }
                     }
                     .controlGroupStyle(.navigation)
                     
-                    Divider()
-                    
                     Button {
                         showSimulation.toggle()
                     } label: {
-                        Label("Simulate", systemImage: "play")
+                        Image(systemName: "play")
                     }
-                    .buttonStyle(.glass)
                     .keyboardShortcut("R", modifiers: .command)
-                    .help("Run Simulation (Cmd+R)")
+                    .help("Run Simulation (⌘R)")
                     
                     ControlGroup {
                         Button {
@@ -116,32 +90,21 @@ struct AutomataStudioView: View {
         .sheet(isPresented: $showSimulation) {
             SimulationPanelView(automaton: document.automaton, input: $simulationInput)
         }
-        .alert("Are you sure you want to delete?", isPresented: $showDeleteConfirmation) {
-            Button("Delete", role: .destructive) {
-                deleteSelectedItems()
-            }
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text("This action cannot be undone.")
-        }
-        // keyboard shortcuts (hidden buttons to capture keys)
         .background {
             ZStack {
-                Button("") { canvasMode = .view }.keyboardShortcut("v", modifiers: [])
-                Button("") { canvasMode = .state }.keyboardShortcut("s", modifiers: [])
+                Button("") { canvasMode = .select }.keyboardShortcut("v", modifiers: [])
+                Button("") { canvasMode = .addState }.keyboardShortcut("s", modifiers: [])
                 Button("") { canvasMode = .transition }.keyboardShortcut("t", modifiers: [])
-                Button("") { canvasMode = .edit }.keyboardShortcut("e", modifiers: [])
-                Button("") { 
-                    canvasMode = .delete 
-                    // optional: if user hits D and something is selected, maybe ask to delete?
-                }.keyboardShortcut("d", modifiers: [])
                 
-                // global delete shortcut
                 Button("") {
-                    if !selectedStates.isEmpty || !selectedTransitions.isEmpty {
-                        showDeleteConfirmation = true
-                    }
+                    deleteSelectedItems()
                 }.keyboardShortcut(.delete, modifiers: [])
+                
+                Button("") {
+                    selectedStates = []
+                    selectedTransitions = []
+                    canvasMode = .select
+                }.keyboardShortcut(.escape, modifiers: [])
             }
             .opacity(0)
         }
@@ -178,6 +141,8 @@ struct AutomataStudioView: View {
     }
     
     private func deleteSelectedItems() {
+        guard !selectedStates.isEmpty || !selectedTransitions.isEmpty else { return }
+        
         for stateId in selectedStates {
             canvasViewModel.removeState(stateId)
         }
@@ -188,31 +153,12 @@ struct AutomataStudioView: View {
         selectedTransitions.removeAll()
     }
     
-    private func getShortcut(for mode: CanvasMode) -> String {
+    private func shortcutLabel(for mode: CanvasMode) -> String {
         switch mode {
-        case .view: return "V"
-        case .state: return "S"
+        case .select: return "V"
+        case .addState: return "S"
         case .transition: return "T"
-        case .delete: return "D"
-        case .edit: return "E"
         }
-    }
-}
-
-struct ModeIndicator: View {
-    let mode: CanvasMode
-    
-    var body: some View {
-        HStack(spacing: 8) {
-            Image(systemName: mode.systemImage)
-            Text(mode.rawValue)
-                .font(.subheadline)
-                .fontWeight(.medium)
-        }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
-        .glassEffect()
-        .opacity(0.9)
     }
 }
 

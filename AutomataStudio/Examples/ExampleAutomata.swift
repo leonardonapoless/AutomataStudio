@@ -12,14 +12,12 @@ struct ExampleAutomata {
             description: "DFA that accepts binary strings divisible by 3"
         )
         
-        // states representing remainder when divided by 3
         let q0 = AutomatonState(name: "q0", position: CGPoint(x: 150, y: 150), isStart: true, isAccepting: true)  // remainder 0
         let q1 = AutomatonState(name: "q1", position: CGPoint(x: 300, y: 150), isStart: false, isAccepting: false) // remainder 1
         let q2 = AutomatonState(name: "q2", position: CGPoint(x: 450, y: 150), isStart: false, isAccepting: false) // remainder 2
         
         automaton.states = [q0, q1, q2]
         
-        // transitions based on binary digit processing
         let transitions = [
             Transition(fromStateId: q0.id, toStateId: q0.id, symbols: ["0"]), // 0*2+0 = 0
             Transition(fromStateId: q0.id, toStateId: q1.id, symbols: ["1"]), // 0*2+1 = 1
@@ -53,10 +51,8 @@ struct ExampleAutomata {
         automaton.states = [q0, q1, q2, q3]
         
         let transitions = [
-            // self-loops for (a|b)*
             Transition(fromStateId: q0.id, toStateId: q0.id, symbols: ["a"]),
             Transition(fromStateId: q0.id, toStateId: q0.id, symbols: ["b"]),
-            // transition to abb pattern
             Transition(fromStateId: q0.id, toStateId: q1.id, symbols: ["a"]),
             Transition(fromStateId: q1.id, toStateId: q2.id, symbols: ["b"]),
             Transition(fromStateId: q2.id, toStateId: q3.id, symbols: ["b"])
@@ -84,8 +80,6 @@ struct ExampleAutomata {
         
         automaton.states = [q0, q1, q2]
         
-        // turing machine transitions would be more complex
-        // for now, I'll create simple transitions
         let transitions = [
             Transition(fromStateId: q0.id, toStateId: q1.id, symbols: ["0"]),
             Transition(fromStateId: q0.id, toStateId: q2.id, symbols: ["1"]),
@@ -119,19 +113,14 @@ struct ExampleAutomata {
         automaton.states = [q0, q1, q2, q3, q4]
         
         let transitions = [
-            // from q0 (empty)
             Transition(fromStateId: q0.id, toStateId: q1.id, symbols: ["a"]),
             Transition(fromStateId: q0.id, toStateId: q1.id, symbols: ["b"]),
-            // from q1 (one char)
             Transition(fromStateId: q1.id, toStateId: q2.id, symbols: ["a"]),
             Transition(fromStateId: q1.id, toStateId: q2.id, symbols: ["b"]),
-            // from q2 (two chars)
             Transition(fromStateId: q2.id, toStateId: q3.id, symbols: ["a"]),
             Transition(fromStateId: q2.id, toStateId: q3.id, symbols: ["b"]),
-            // from q3 (three chars) - reject longer strings
             Transition(fromStateId: q3.id, toStateId: q4.id, symbols: ["a"]),
             Transition(fromStateId: q3.id, toStateId: q4.id, symbols: ["b"]),
-            // from q4 (reject state)
             Transition(fromStateId: q4.id, toStateId: q4.id, symbols: ["a"]),
             Transition(fromStateId: q4.id, toStateId: q4.id, symbols: ["b"])
         ]

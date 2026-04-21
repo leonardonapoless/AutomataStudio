@@ -12,6 +12,8 @@ struct AutomataStudioApp: App {
     var body: some Scene {
         DocumentGroup(newDocument: AutomataDocument()) { file in
             AutomataStudioView(document: file.$document)
+                .frame(minWidth: 800, minHeight: 600)
         }
+        .defaultSize(width: 1200, height: 800)
     }
 }

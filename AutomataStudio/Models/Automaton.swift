@@ -1,5 +1,4 @@
 import Foundation
-import Foundation
 import CoreGraphics
 
 // MARK: - Automaton Types
@@ -26,7 +25,7 @@ struct AutomatonState: Identifiable, Codable, Equatable, Hashable, Sendable {
     var position: CGPoint
     var isStart: Bool
     var isAccepting: Bool
-    var customColor: String? // hex color string
+    var customColor: String? 
     var label: String? 
     
     init(id: UUID = UUID(), name: String, position: CGPoint, isStart: Bool = false, isAccepting: Bool = false, customColor: String? = nil, label: String? = nil) {
@@ -39,7 +38,6 @@ struct AutomatonState: Identifiable, Codable, Equatable, Hashable, Sendable {
         self.label = label
     }
     
-    // computed property for display name
     var displayName: String {
         return name.isEmpty ? "q\(id.uuidString.prefix(4))" : name
     }
@@ -62,7 +60,6 @@ struct Transition: Identifiable, Codable, Equatable, Sendable {
         self.isEpsilon = isEpsilon
     }
     
-    // computed property for display symbols
     var displaySymbols: String {
         if isEpsilon {
             return "ε"
@@ -85,7 +82,6 @@ struct Automaton: Codable, Equatable, Sendable {
     var author: String?
     var description: String?
     
-    // turing machine specific properties
     var tapeAlphabet: Set<String>?
     var blankSymbol: String?
     
@@ -101,7 +97,6 @@ struct Automaton: Codable, Equatable, Sendable {
         self.author = author
         self.description = description
         
-        // initialize turing machine properties if needed
         if type == .turingMachine {
             self.tapeAlphabet = Set(["0", "1", "B"])
             self.blankSymbol = "B"
@@ -149,10 +144,17 @@ struct Automaton: Codable, Equatable, Sendable {
     // MARK: - State Management
     
     mutating func addState(at position: CGPoint) -> AutomatonState {
+        var index = states.count
+        var candidateName = "q\(index)"
+        while states.contains(where: { $0.name == candidateName }) {
+            index += 1
+            candidateName = "q\(index)"
+        }
+        
         let newState = AutomatonState(
-            name: "q\(states.count)",
+            name: candidateName,
             position: position,
-            isStart: states.isEmpty, // first state is start by default
+            isStart: states.isEmpty,
             isAccepting: false
         )
         states.append(newState)
@@ -163,6 +165,7 @@ struct Automaton: Codable, Equatable, Sendable {
     mutating func removeState(_ stateId: UUID) {
         states.removeAll { $0.id == stateId }
         transitions.removeAll { $0.fromStateId == stateId || $0.toStateId == stateId }
+        syncAlphabet()
         updateModifiedDate()
     }
     
@@ -183,30 +186,21 @@ struct Automaton: Codable, Equatable, Sendable {
             isEpsilon: isEpsilon
         )
         transitions.append(newTransition)
-        
-        // update alphabet
-        if !isEpsilon {
-            alphabet.formUnion(symbols)
-        }
-        
+        syncAlphabet()
         updateModifiedDate()
         return newTransition
     }
     
     mutating func removeTransition(_ transitionId: UUID) {
         transitions.removeAll { $0.id == transitionId }
+        syncAlphabet()
         updateModifiedDate()
     }
     
     mutating func updateTransition(_ transition: Transition) {
         if let index = transitions.firstIndex(where: { $0.id == transition.id }) {
             transitions[index] = transition
-            
-            // update alphabet
-            if !transition.isEpsilon {
-                alphabet.formUnion(transition.symbols)
-            }
-            
+            syncAlphabet()
             updateModifiedDate()
         }
     }
@@ -237,6 +231,16 @@ struct Automaton: Codable, Equatable, Sendable {
         return transitions.filter { $0.fromStateId == fromStateId && $0.toStateId == toStateId }
     }
     
+    private mutating func syncAlphabet() {
+        var usedSymbols = Set<String>()
+        for t in transitions {
+            if !t.isEpsilon {
+                usedSymbols.formUnion(t.symbols)
+            }
+        }
+        self.alphabet = usedSymbols
+    }
+    
     private mutating func updateModifiedDate() {
         modifiedDate = Date()
     }
@@ -246,18 +250,15 @@ struct Automaton: Codable, Equatable, Sendable {
     func validate() -> [String] {
         var errors: [String] = []
         
-        // check for start state
         if getStartState() == nil {
             errors.append("No start state defined")
         }
         
-        // check for multiple start states
         let startStates = states.filter { $0.isStart }
         if startStates.count > 1 {
             errors.append("Multiple start states defined")
         }
         
-        // check for transitions with invalid states
         for transition in transitions {
             if getState(by: transition.fromStateId) == nil {
                 errors.append("Transition references non-existent from state")

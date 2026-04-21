@@ -19,25 +19,48 @@ struct DFAMinimizer {
     private let dfa: Automaton
     private var partitions: [Set<UUID>] = []
     private var partitionMap: [UUID: Int] = [:]
+    private var reachableStates: Set<UUID> = []
     
     private init(dfa: Automaton) {
         self.dfa = dfa
     }
     
     private mutating func performMinimization() -> Automaton {
-        // step 1: initial partition (accepting vs non-accepting states)
+        pruneUnreachableStates()
         initializePartitions()
         
-        // step 2: refine partitions using Hopcroft's algorithm
         refinePartitions()
         
-        // Step 3: Create minimized DFA
         return createMinimizedDFA()
     }
     
+    private mutating func pruneUnreachableStates() {
+        guard let start = dfa.getStartState() else {
+            reachableStates = []
+            return
+        }
+        
+        var reachable: Set<UUID> = [start.id]
+        var worklist: [UUID] = [start.id]
+        
+        while !worklist.isEmpty {
+            let state = worklist.removeFirst()
+            let transitions = dfa.getTransitions(from: state)
+            for t in transitions {
+                if !reachable.contains(t.toStateId) {
+                    reachable.insert(t.toStateId)
+                    worklist.append(t.toStateId)
+                }
+            }
+        }
+        
+        self.reachableStates = reachable
+    }
+    
     private mutating func initializePartitions() {
-        let acceptingStates = Set(dfa.getAcceptingStates().map { $0.id })
-        let nonAcceptingStates = Set(dfa.states.map { $0.id }).subtracting(acceptingStates)
+        let validStates = dfa.states.filter { reachableStates.contains($0.id) }
+        let acceptingStates = Set(validStates.filter { $0.isAccepting }.map { $0.id })
+        let nonAcceptingStates = Set(validStates.map { $0.id }).subtracting(acceptingStates)
         
         partitions = []
         partitionMap = [:]
@@ -58,40 +81,33 @@ struct DFAMinimizer {
     }
     
     private mutating func refinePartitions() {
-        var worklist: [Int] = []
-        
-        // initialize worklist with smaller partition
-        if partitions.count >= 2 {
-            let smallerPartitionIndex = partitions[0].count <= partitions[1].count ? 0 : 1
-            worklist.append(smallerPartitionIndex)
-        }
-        
-        while !worklist.isEmpty {
-            let partitionIndex = worklist.removeFirst()
-            let currentPartition = partitions[partitionIndex]
+        var changed = true
+        while changed {
+            changed = false
+            var newPartitions: [Set<UUID>] = []
             
-            // for each symbol in alphabet
-            for symbol in dfa.alphabet {
-                let splitResult = splitPartition(currentPartition, on: symbol)
+            for partition in partitions {
+                var splitResult: [Set<UUID>] = []
+                
+                for symbol in dfa.alphabet {
+                    splitResult = splitPartition(partition, on: symbol)
+                    if splitResult.count > 1 {
+                        break
+                    }
+                }
                 
                 if splitResult.count > 1 {
-                    // replace current partition with split results
-                    partitions[partitionIndex] = splitResult[0]
-                    updatePartitionMap(splitResult[0], partitionIndex: partitionIndex)
-                    
-                    // add remaining splits as new partitions
-                    for i in 1..<splitResult.count {
-                        let newPartitionIndex = partitions.count
-                        partitions.append(splitResult[i])
-                        updatePartitionMap(splitResult[i], partitionIndex: newPartitionIndex)
-                        
-                        // add to worklist if it's smaller than current partition
-                        if splitResult[i].count <= currentPartition.count {
-                            worklist.append(newPartitionIndex)
-                        } else {
-                            worklist.append(partitionIndex)
-                        }
-                    }
+                    changed = true
+                    newPartitions.append(contentsOf: splitResult)
+                } else {
+                    newPartitions.append(partition)
+                }
+            }
+            
+            if changed {
+                partitions = newPartitions
+                for (i, p) in partitions.enumerated() {
+                    updatePartitionMap(p, partitionIndex: i)
                 }
             }
         }
@@ -139,23 +155,19 @@ struct DFAMinimizer {
         var minimizedTransitions: [Transition] = []
         var stateIdMap: [Int: UUID] = [:]
         
-        // create states for each partition
         for (index, partition) in partitions.enumerated() {
             let newStateId = UUID()
             stateIdMap[index] = newStateId
             
-            // determine state properties
             let isStart = partition.contains(dfa.getStartState()?.id ?? UUID())
             let isAccepting = !partition.intersection(Set(dfa.getAcceptingStates().map { $0.id })).isEmpty
             
-            // calculate position (center of partition states)
             let partitionStates = partition.compactMap { dfa.getState(by: $0) }
             let positions = partitionStates.map { $0.position }
             let count = max(positions.count, 1)
             let avgX = positions.map { $0.x }.reduce(0, +) / CGFloat(count)
             let avgY = positions.map { $0.y }.reduce(0, +) / CGFloat(count)
             
-            // create state name
             let stateNames = partitionStates.map { $0.displayName }.sorted()
             let name = stateNames.count == 1 ? stateNames[0] : "{\(stateNames.joined(separator: ","))}"
             
@@ -170,22 +182,17 @@ struct DFAMinimizer {
             minimizedStates.append(state)
         }
         
-        // create transitions
         for (index, partition) in partitions.enumerated() {
             guard let fromStateId = stateIdMap[index] else { continue }
             
-            // get a representative state from this partition
             guard let representativeState = partition.first else { continue }
             
-            // find transitions from representative state
             let transitions = dfa.getTransitions(from: representativeState)
             
             for transition in transitions {
-                // find which partition the target state belongs to
                 if let targetPartitionIndex = partitionMap[transition.toStateId],
                    let toStateId = stateIdMap[targetPartitionIndex] {
                     
-                    // check if transition already exists
                     let existingTransition = minimizedTransitions.first { t in
                         t.fromStateId == fromStateId && t.toStateId == toStateId && t.symbols == transition.symbols
                     }

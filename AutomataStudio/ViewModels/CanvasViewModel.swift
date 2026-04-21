@@ -9,19 +9,19 @@ class CanvasViewModel: ObservableObject {
     @Published var gridSize: CGFloat = 20.0
     @Published var snapToGrid: Bool = true
     
-    // simulation state
     @Published var isSimulating: Bool = false
     @Published var simulationStep: Int = 0
     @Published var activeStates: Set<UUID> = []
     @Published var simulationInput: String = ""
     @Published var simulationResult: SimulationResult?
     
-    // drag and selection state
     @Published var draggedState: UUID?
     @Published var dragOffset: CGSize = .zero
     @Published var isDragging: Bool = false
     @Published var selectionBox: CGRect?
     @Published var isSelecting: Bool = false
+    
+    var lastPanTranslation: CGSize = .zero
     
     private var cancellables = Set<AnyCancellable>()
     
@@ -54,11 +54,11 @@ class CanvasViewModel: ObservableObject {
         guard !automaton.states.isEmpty else { return }
         
         let bounds = calculateAutomatonBounds()
-        let canvasSize = CGSize(width: 800, height: 600) // default canvas size
+        let canvasSize = CGSize(width: 800, height: 600) 
         
         let scaleX = canvasSize.width / bounds.width
         let scaleY = canvasSize.height / bounds.height
-        let scale = min(scaleX, scaleY) * 0.8 // 80% to add some padding
+        let scale = min(scaleX, scaleY) * 0.8 
         
         withAnimation(.easeInOut(duration: 0.5)) {
             zoomLevel = max(scale, 0.1)
@@ -69,12 +69,43 @@ class CanvasViewModel: ObservableObject {
         }
     }
     
-    func panCanvas(by offset: CGSize) {
-        panOffset.width += offset.width
-        panOffset.height += offset.height
+    func panCanvas(by translation: CGSize) {
+        let delta = CGSize(
+            width: translation.width - lastPanTranslation.width,
+            height: translation.height - lastPanTranslation.height
+        )
+        panOffset.width += delta.width
+        panOffset.height += delta.height
+        lastPanTranslation = translation
     }
     
-    func snapToGrid(_ point: CGPoint) -> CGPoint {
+    func endPan() {
+        lastPanTranslation = .zero
+    }
+    
+    // MARK: - Trackpad Gesture Support
+    
+    func applyMagnification(_ scale: CGFloat, anchor: CGPoint) {
+        let newZoom = max(0.1, min(zoomLevel * scale, 5.0))
+        let factor = newZoom / zoomLevel
+        
+        panOffset.width = anchor.x - factor * (anchor.x - panOffset.width)
+        panOffset.height = anchor.y - factor * (anchor.y - panOffset.height)
+        
+        zoomLevel = newZoom
+    }
+    
+    func applyScrollPan(_ delta: CGSize) {
+        panOffset.width += delta.width
+        panOffset.height += delta.height
+    }
+    
+    func applyScrollZoom(_ scrollDelta: CGFloat, at anchor: CGPoint) {
+        let factor: CGFloat = 1.0 + scrollDelta * 0.01
+        applyMagnification(factor, anchor: anchor)
+    }
+    
+    func snappedPosition(_ point: CGPoint) -> CGPoint {
         guard snapToGrid else { return point }
         
         let snappedX = round(point.x / gridSize) * gridSize
@@ -85,7 +116,7 @@ class CanvasViewModel: ObservableObject {
     // MARK: - State Management
     
     func addState(at location: CGPoint) -> AutomatonState {
-        let snappedLocation = snapToGrid(location)
+        let snappedLocation = snappedPosition(location)
         let newState = automaton.addState(at: snappedLocation)
         return newState
     }
@@ -101,7 +132,7 @@ class CanvasViewModel: ObservableObject {
     func moveState(_ stateId: UUID, to location: CGPoint) {
         guard var state = automaton.getState(by: stateId) else { return }
         
-        let snappedLocation = snapToGrid(location)
+        let snappedLocation = snappedPosition(location)
         state.position = snappedLocation
         automaton.updateState(state)
     }
@@ -185,7 +216,6 @@ class CanvasViewModel: ObservableObject {
         simulationStep = 0
         isSimulating = true
         
-        // initialize with start state
         if let startState = automaton.getStartState() {
             activeStates = [startState.id]
         }
@@ -201,24 +231,41 @@ class CanvasViewModel: ObservableObject {
         
         let currentSymbol = String(simulationInput[simulationInput.index(simulationInput.startIndex, offsetBy: simulationStep)])
         
-        var newActiveStates: Set<UUID> = []
+        let closedStates = epsilonClosure(of: activeStates)
         
-        for stateId in activeStates {
+        var newActiveStates: Set<UUID> = []
+        for stateId in closedStates {
             let transitions = automaton.getTransitions(from: stateId)
             for transition in transitions {
-                if transition.symbols.contains(currentSymbol) || transition.isEpsilon {
+                if !transition.isEpsilon && transition.symbols.contains(currentSymbol) {
                     newActiveStates.insert(transition.toStateId)
                 }
             }
         }
         
-        activeStates = newActiveStates
+        activeStates = epsilonClosure(of: newActiveStates)
         simulationStep += 1
         
-        // check if simulation is complete
         if simulationStep >= simulationInput.count {
             finishSimulation()
         }
+    }
+    
+    private func epsilonClosure(of states: Set<UUID>) -> Set<UUID> {
+        var closure = states
+        var worklist = Array(states)
+        
+        while !worklist.isEmpty {
+            let current = worklist.removeFirst()
+            for transition in automaton.getTransitions(from: current) where transition.isEpsilon {
+                if !closure.contains(transition.toStateId) {
+                    closure.insert(transition.toStateId)
+                    worklist.append(transition.toStateId)
+                }
+            }
+        }
+        
+        return closure
     }
     
     func finishSimulation() {
@@ -269,29 +316,23 @@ struct SimulationResult {
 // MARK: - Canvas Modes
 
 enum CanvasMode: String, CaseIterable {
-    case view = "View"
-    case state = "State"
+    case select = "Select"
+    case addState = "Add State"
     case transition = "Transition"
-    case delete = "Delete"
-    case edit = "Edit"
     
     var systemImage: String {
         switch self {
-        case .view: return "hand.point.up.left"
-        case .state: return "circle"
+        case .select: return "cursorarrow"
+        case .addState: return "circle.badge.plus"
         case .transition: return "arrow.right"
-        case .delete: return "trash"
-        case .edit: return "pencil"
         }
     }
     
     var keyboardShortcut: KeyEquivalent? {
         switch self {
-        case .view: return .init("v")
-        case .state: return .init("s")
+        case .select: return .init("v")
+        case .addState: return .init("s")
         case .transition: return .init("t")
-        case .delete: return .init("d")
-        case .edit: return .init("e")
         }
     }
 }
