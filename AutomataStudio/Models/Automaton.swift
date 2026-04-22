@@ -1,6 +1,32 @@
 import Foundation
 import CoreGraphics
 
+// MARK: - Simulation Result
+
+struct SimulationResult: Codable, Equatable, Hashable, Sendable {
+    let accepted: Bool
+    let finalStates: Set<UUID>
+    let steps: Int
+}
+
+// MARK: - Canvas Mode
+
+enum CanvasMode: String, CaseIterable, Identifiable, Codable, Sendable {
+    case select = "Select"
+    case addState = "Add State"
+    case transition = "Transition"
+    
+    var id: String { self.rawValue }
+    
+    var systemImage: String {
+        switch self {
+        case .select: return "cursorarrow"
+        case .addState: return "plus.circle"
+        case .transition: return "arrow.right.circle"
+        }
+    }
+}
+
 // MARK: - Automaton Types
 
 enum AutomatonType: String, CaseIterable, Codable, Sendable {

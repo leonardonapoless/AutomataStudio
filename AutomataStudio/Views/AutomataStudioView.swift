@@ -10,7 +10,7 @@ struct AutomataStudioView: View {
     @State private var selectedTransitions: Set<UUID> = []
     @State private var canvasMode: CanvasMode = .select
     
-    @State private var showSimulation = false
+    @State private var isSimulationPanelVisible = false
     @State private var simulationInput = ""
     
     var body: some View {
@@ -23,46 +23,54 @@ struct AutomataStudioView: View {
             )
             .navigationSplitViewColumnWidth(min: 250, ideal: 300)
         } detail: {
-            CanvasView(
-                automaton: document.automaton,
-                canvasMode: $canvasMode,
-                selectedStates: $selectedStates,
-                selectedTransitions: $selectedTransitions,
-                viewModel: canvasViewModel,
-                onRenameState: { stateId in
-                    if let state = document.automaton.getState(by: stateId) {
-                        inspectorViewModel.selectState(state)
+            ZStack {
+                CanvasView(
+                    automaton: document.automaton,
+                    canvasMode: $canvasMode,
+                    selectedStates: $selectedStates,
+                    selectedTransitions: $selectedTransitions,
+                    viewModel: canvasViewModel,
+                    onRenameState: { stateId in
+                        if let state = document.automaton.getState(by: stateId) {
+                            inspectorViewModel.selectState(state)
+                        }
+                    },
+                    onEditTransition: { transitionId in
+                        if let transition = canvasViewModel.automaton.transitions.first(where: { $0.id == transitionId }) {
+                            inspectorViewModel.selectTransition(transition)
+                        }
                     }
-                },
-                onEditTransition: { transitionId in
-                    if let transition = canvasViewModel.automaton.transitions.first(where: { $0.id == transitionId }) {
-                        inspectorViewModel.selectTransition(transition)
-                    }
+                )
+                
+                if isSimulationPanelVisible {
+                    SimulationBottomPanel(viewModel: canvasViewModel, input: $simulationInput)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                        .zIndex(100)
                 }
-            )
+            }
             .background(Color(nsColor: .windowBackgroundColor))
             .toolbar {
                 ToolbarItemGroup(placement: .primaryAction) {
                     ControlGroup {
                         ForEach(CanvasMode.allCases, id: \.self) { mode in
-                            Toggle(isOn: Binding(
-                                get: { canvasMode == mode },
-                                set: { _ in canvasMode = mode }
-                            )) {
-                                Label(mode.rawValue, systemImage: mode.systemImage)
-                            }
-                            .help("\(mode.rawValue) Mode (\(shortcutLabel(for: mode)))")
+                            modeToggle(for: mode)
                         }
                     }
                     .controlGroupStyle(.navigation)
                     
                     Button {
-                        showSimulation.toggle()
+                        withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
+                            isSimulationPanelVisible.toggle()
+                            if !isSimulationPanelVisible {
+                                canvasViewModel.resetSimulation()
+                            }
+                        }
                     } label: {
-                        Image(systemName: "play")
+                        Label("Simulation", systemImage: "play.fill")
+                            .foregroundStyle(isSimulationPanelVisible ? Color.accentColor : Color.primary)
                     }
                     .keyboardShortcut("R", modifiers: .command)
-                    .help("Run Simulation (⌘R)")
+                    .help("Toggle Simulation Panel (⌘R)")
                     
                     ControlGroup {
                         Button {
@@ -87,9 +95,6 @@ struct AutomataStudioView: View {
             }
         }
         .navigationTitle(document.automaton.name)
-        .sheet(isPresented: $showSimulation) {
-            SimulationPanelView(automaton: document.automaton, input: $simulationInput)
-        }
         .background {
             ZStack {
                 Button("") { canvasMode = .select }.keyboardShortcut("v", modifiers: [])
@@ -124,6 +129,18 @@ struct AutomataStudioView: View {
                 document.automaton = newAutomaton
             }
         }
+    }
+    
+    @ViewBuilder
+    private func modeToggle(for mode: CanvasMode) -> some View {
+        let shortcut = shortcutLabel(for: mode)
+        Toggle(isOn: Binding(
+            get: { canvasMode == mode },
+            set: { _ in canvasMode = mode }
+        )) {
+            Label(mode.rawValue, systemImage: mode.systemImage)
+        }
+        .help("\(mode.rawValue) Mode (\(shortcut))")
     }
     
     private func syncViewModels() {

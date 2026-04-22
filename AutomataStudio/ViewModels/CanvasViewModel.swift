@@ -14,6 +14,13 @@ class CanvasViewModel: ObservableObject {
     @Published var activeStates: Set<UUID> = []
     @Published var simulationInput: String = ""
     @Published var simulationResult: SimulationResult?
+    @Published var lastActiveTransitions: Set<UUID> = []
+    @Published var previousActiveStates: Set<UUID> = []
+    @Published var lastStepTime: Date = .distantPast
+    @Published var playbackSpeed: Double = 1.0
+    @Published var isCurrentStepInvalid: Bool = false
+    
+    private var simulationTimer: AnyCancellable?
     
     @Published var draggedState: UUID?
     @Published var dragOffset: CGSize = .zero
@@ -215,6 +222,7 @@ class CanvasViewModel: ObservableObject {
         simulationInput = input
         simulationStep = 0
         isSimulating = true
+        isCurrentStepInvalid = false
         
         if let startState = automaton.getStartState() {
             activeStates = [startState.id]
@@ -233,22 +241,62 @@ class CanvasViewModel: ObservableObject {
         
         let closedStates = epsilonClosure(of: activeStates)
         
-        var newActiveStates: Set<UUID> = []
+        var nextActiveStates: Set<UUID> = []
+        var takenTransitions: Set<UUID> = []
+        
         for stateId in closedStates {
             let transitions = automaton.getTransitions(from: stateId)
             for transition in transitions {
                 if !transition.isEpsilon && transition.symbols.contains(currentSymbol) {
-                    newActiveStates.insert(transition.toStateId)
+                    nextActiveStates.insert(transition.toStateId)
+                    takenTransitions.insert(transition.id)
                 }
             }
         }
         
-        activeStates = epsilonClosure(of: newActiveStates)
+        isCurrentStepInvalid = nextActiveStates.isEmpty || !automaton.alphabet.contains(currentSymbol)
+        
+        previousActiveStates = activeStates
+        lastActiveTransitions = takenTransitions
+        activeStates = epsilonClosure(of: nextActiveStates)
         simulationStep += 1
+        lastStepTime = .now
+        
+        if isCurrentStepInvalid || simulationStep >= simulationInput.count {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                if self.isSimulating {
+                    self.finishSimulation()
+                }
+            }
+        }
+    }
+    
+    func toggleAutoSimulation() {
+        if simulationTimer != nil {
+            stopAutoSimulation()
+        } else {
+            startAutoSimulation()
+        }
+    }
+    
+    func startAutoSimulation() {
+        stopAutoSimulation()
         
         if simulationStep >= simulationInput.count {
-            finishSimulation()
+            resetSimulation()
+            startSimulation(input: simulationInput)
         }
+        
+        simulationTimer = Timer.publish(every: 1.5 / playbackSpeed, on: .main, in: .common)
+            .autoconnect()
+            .sink { [weak self] _ in
+                self?.stepSimulation()
+            }
+    }
+    
+    func stopAutoSimulation() {
+        simulationTimer?.cancel()
+        simulationTimer = nil
     }
     
     private func epsilonClosure(of states: Set<UUID>) -> Set<UUID> {
@@ -282,10 +330,15 @@ class CanvasViewModel: ObservableObject {
     }
     
     func resetSimulation() {
+        stopAutoSimulation()
         isSimulating = false
         simulationStep = 0
         activeStates = []
+        previousActiveStates = []
+        lastActiveTransitions = []
+        lastStepTime = .distantPast
         simulationResult = nil
+        isCurrentStepInvalid = false
     }
     
     // MARK: - Utility Methods
@@ -305,34 +358,3 @@ class CanvasViewModel: ObservableObject {
     }
 }
 
-// MARK: - Simulation Result
-
-struct SimulationResult {
-    let accepted: Bool
-    let finalStates: Set<UUID>
-    let steps: Int
-}
-
-// MARK: - Canvas Modes
-
-enum CanvasMode: String, CaseIterable {
-    case select = "Select"
-    case addState = "Add State"
-    case transition = "Transition"
-    
-    var systemImage: String {
-        switch self {
-        case .select: return "cursorarrow"
-        case .addState: return "circle.badge.plus"
-        case .transition: return "arrow.right"
-        }
-    }
-    
-    var keyboardShortcut: KeyEquivalent? {
-        switch self {
-        case .select: return .init("v")
-        case .addState: return .init("s")
-        case .transition: return .init("t")
-        }
-    }
-}
