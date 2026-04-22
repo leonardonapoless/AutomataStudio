@@ -13,3 +13,7 @@ DerivedData/
 
 # macOS
 .DS_Store
+
+# AutomataStudio Build Artifacts
+build_output/
+build_log.txt
