@@ -1,0 +1,273 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -scheme AutomataStudio -derivedDataPath ./build_output -configuration Debug -sdk macosx build
+
+Build settings from command line:
+    SDKROOT = macosx26.4
+
+2026-04-22 19:25:24.695 xcodebuild[47553:440105] [MT] IDERunDestination: Supported platforms for the buildables in the current scheme is empty.
+--- xcodebuild: WARNING: Using the first of multiple matching destinations:
+{ platform:macOS, arch:arm64, id:00008112-0009655126DBA01E, name:My Mac }
+{ platform:macOS, arch:x86_64, id:00008112-0009655126DBA01E, name:My Mac }
+{ platform:macOS, name:Any Mac }
+ComputePackagePrebuildTargetDependencyGraph
+
+Prepare packages
+
+CreateBuildRequest
+
+SendProjectDescription
+
+CreateBuildOperation
+
+ComputeTargetDependencyGraph
+note: Building targets in dependency order
+note: Target dependency graph (1 target)
+    Target 'AutomataStudio' in project 'AutomataStudio' (no dependencies)
+
+GatherProvisioningInputs
+
+CreateBuildDescription
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.4.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --version --output-format xml1
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc --version
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld -version_details
+
+Build description signature: 9769b98af0ca608099a05cf149ebc19e
+Build description path: /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Intermediates.noindex/XCBuildData/9769b98af0ca608099a05cf149ebc19e.xcbuilddata
+ClangStatCache /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.4.sdk /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/SDKStatCaches.noindex/macosx26.4-25E251-688ef53f1462e2c8f657fdc38a81448f30f9ca8789b706f8bd3fc906a70d770f.sdkstatcache
+    cd /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio.xcodeproj
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.4.sdk -o /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/SDKStatCaches.noindex/macosx26.4-25E251-688ef53f1462e2c8f657fdc38a81448f30f9ca8789b706f8bd3fc906a70d770f.sdkstatcache
+
+ProcessInfoPlistFile /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Products/Debug/AutomataStudio.app/Contents/Info.plist /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Intermediates.noindex/AutomataStudio.build/Debug/AutomataStudio.build/empty-AutomataStudio.plist (in target 'AutomataStudio' from project 'AutomataStudio')
+    cd /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio
+    builtin-infoPlistUtility /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Intermediates.noindex/AutomataStudio.build/Debug/AutomataStudio.build/empty-AutomataStudio.plist -producttype com.apple.product-type.application -genpkginfo /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Products/Debug/AutomataStudio.app/Contents/PkgInfo -expandbuildsettings -platform macosx -additionalcontentfile /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Intermediates.noindex/AutomataStudio.build/Debug/AutomataStudio.build/assetcatalog_generated_info.plist -o /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Products/Debug/AutomataStudio.app/Contents/Info.plist
+
+SwiftDriver AutomataStudio normal arm64 com.apple.xcode.tools.swift.compiler (in target 'AutomataStudio' from project 'AutomataStudio')
+    cd /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio
+    builtin-SwiftDriver -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name AutomataStudio -Onone @/Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Intermediates.noindex/AutomataStudio.build/Debug/AutomataStudio.build/Objects-normal/arm64/AutomataStudio.SwiftFileList -DDEBUG -default-isolation\=MainActor -enable-upcoming-feature MemberImportVisibility -enable-upcoming-feature InferIsolatedConformances -enable-upcoming-feature NonisolatedNonsendingByDefault -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.4.sdk -target arm64-apple-macos26.0 -g -module-cache-path /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Products/Debug -F /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Products/Debug -emit-localized-strings -emit-localized-strings-path /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Intermediates.noindex/AutomataStudio.build/Debug/AutomataStudio.build/Objects-normal/arm64 -c -j8 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/SDKStatCaches.noindex/macosx26.4-25E251-688ef53f1462e2c8f657fdc38a81448f30f9ca8789b706f8bd3fc906a70d770f.sdkstatcache -output-file-map /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Intermediates.noindex/AutomataStudio.build/Debug/AutomataStudio.build/Objects-normal/arm64/AutomataStudio-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex -sdk-module-cache-path /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Intermediates.noindex/AutomataStudio.build/Debug/AutomataStudio.build/Objects-normal/arm64/AutomataStudio.swiftmodule -validate-clang-modules-once -clang-build-session-file /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/Session.modulevalidation -Xcc -I/Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Intermediates.noindex/AutomataStudio.build/Debug/AutomataStudio.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Intermediates.noindex/AutomataStudio.build/Debug/AutomataStudio.build/Objects-normal/arm64/AutomataStudio_const_extract_protocols.json -Xcc -iquote -Xcc /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Intermediates.noindex/AutomataStudio.build/Debug/AutomataStudio.build/AutomataStudio-generated-files.hmap -Xcc -I/Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Intermediates.noindex/AutomataStudio.build/Debug/AutomataStudio.build/AutomataStudio-own-target-headers.hmap -Xcc -I/Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Intermediates.noindex/AutomataStudio.build/Debug/AutomataStudio.build/AutomataStudio-all-target-headers.hmap -Xcc -iquote -Xcc /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Intermediates.noindex/AutomataStudio.build/Debug/AutomataStudio.build/AutomataStudio-project-headers.hmap -Xcc -I/Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Products/Debug/include -Xcc -I/Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Intermediates.noindex/AutomataStudio.build/Debug/AutomataStudio.build/DerivedSources-normal/arm64 -Xcc -I/Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Intermediates.noindex/AutomataStudio.build/Debug/AutomataStudio.build/DerivedSources/arm64 -Xcc -I/Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Intermediates.noindex/AutomataStudio.build/Debug/AutomataStudio.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Intermediates.noindex/AutomataStudio.build/Debug/AutomataStudio.build/Objects-normal/arm64/AutomataStudio-Swift.h -working-directory /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio -experimental-emit-module-separately -disable-cmo
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/ptrcheck-B8P8CHC2HBR9TYZDX4Y23NU5I.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/SwiftShims-7RVQBTBWYCUS5CH7LFU3VTRQF.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/_Builtin_stdbool-DOASXQPB72WJP6JMSIQF1SHXJ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/_SwiftConcurrencyShims-9W7FWESBEUVAEJANSY5WMOUWP.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/ptrauth-22PG5G17TFS51ZR4SDLNZN588.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/_Builtin_stdarg-AAVURIVRU0DLLP0AIFYVJQC3B.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/_Builtin_float-1JQGTWXAHYZAXP5JZQSZ5C9VY.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/_Builtin_stddef-CX92W2LGV6I2CDSG447KFANSV.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/_AvailabilityInternal-CEK50C91KL0S4WWBCRNS7OWE9.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/DeveloperToolsSupport-89CPCVJAF5ICTJYBDT3C6NHDW.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/_DarwinFoundation1-9MKV2A91KYP5JRXSAN2RL4NKZ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/_DarwinFoundation2-2542PZFMA94FSL28BDLHDNT3.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/_Builtin_limits-3WWZST0SFEVZXL0KMG303OR3U.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/_Builtin_stdint-AAZN0V7I63K3KSR8YSGC4HT23.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/_Builtin_tgmath-A961IMXITLNU66YYET7SSYUSE.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/sys_types-B8QXTVIW3A2N1NC2KEJ3TVICZ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/libDER-1JMBXEYBURROTI07ZXFLBEF05.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/_Builtin_stdatomic-ZW0J770F16FFSB2YAGN1UFX5.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/_Builtin_intrinsics-4HMZR4MBM8OGMTN7R75DFPSQ0.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/_DarwinFoundation3-2PPN9VSI76W808O9TE8NRWFMH.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/OpenGL-3KIN5GCL825CWJI6DMH1HGAF.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/_Builtin_inttypes-4ILNOZQEXQ5YBT9A71QY58U93.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/Darwin-9X5UQNST6PB5K86ASWW3XC899.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/simd-4I2521MR2OKXRQ69WQG5IICMO.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/libkern-3AIWP4ORYU31V7SECO47Z7LK8.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/MachO-56C1ZN2C155GUCGASNF6PK825.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/CUPS-4R62QLOSYZC1UTMQU130T2WAW.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/launch-8IBFMEXAM7K9DLU0BSIRJGYZ3.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/Spatial-BUQFH108ZM4W9Y06DKFIAZNBR.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/ObjectiveC-7CGS3JUPTTKSOEGBRN5QVJUW3.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/os_object-6BU5KDSJBBLP45WACR08AUK5.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/os_workgroup-9QJUJUU13WTIXJVU4DPKDOPA2.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/Dispatch-7F17NU6GCPT7HUTLJ5TKSM94S.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/XPC-3QT68KZOI2FT0PE7NRC3KQKJV.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/CoreFoundation-8BE1BL0XZ35BUO8UTHF5HF880.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/os-8IEXZL0C6AJ6RL1Y8VUFKN50J.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/IOKit-EPAFEVEQS2ZOGFJABRMK3RJV.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/CFNetwork-EDIJ799UYE1REYM3QZ8CKY3C4.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/Security-D3UD65R587D4W0XOF3OB117EB.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/ColorSync-7VAM5HZCUETLSEWMSJVRJM5IZ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/CoreGraphics-6D7H4UOMQTU68MUKZH2AU58IN.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/DiskArbitration-9NM96QY3WVTAJSCYGH4UFS8P6.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/CoreServices-28OVRJWPT8DBYK42LBXXS4NZH.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/CoreText-2OENPMXJICB3SNQ9XI7TQIP26.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/ImageIO-25R6RF2S6SIJF4TCHBDFWXAEP.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/Foundation-CIBTMPMUP1TK0WAGMTLUUZBSC.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/CoreTransferable-7VIN5XE6A62414QKKGX795TEB.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/OSLog-CDCRDOU2KXO8JFLH4DJR9C4RZ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/Accessibility-2IAHFOEOTADN1JPTAJU5GJY44.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/ApplicationServices-ESAEWRNFWW37KLMLMH5OUDVSD.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/UniformTypeIdentifiers-EF9K86SCH2B2DWHU6QRFQN79S.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/DataDetection-AB1VACWMTIX77XDD4Y6Z3QMZA.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/IOSurface-2GET7CL47W9QGRYSIH9HRDWGE.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/Symbols-8CRS9SOC5NBOL8ID5AQTH1TD8.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/CoreData-EWSTS69NM7DH9FWMAYPHS6JAG.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/Metal-UJO4C67TJ0S5XWXHXZ4ED088.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/CoreVideo-EK6DZ6LICGON54M2I39NLA7ZJ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/QuartzCore-8OHW93CZ6A35UEYOMPWYNH9SL.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/CoreImage-83UXTUH9VPSAR61TU9OSWZYYF.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/SwiftUICore-CUDK9ZVIWUAJIQJQU07NOKXN2.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/AppKit-CUL24HPU6FWYLRDJP4G9CWVC3.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/SwiftUI-6GSOXRLDFYLKQ2QI1K7HLPJ7N.pcm
+
+SwiftCompile normal arm64 Compiling\ AutomataStudioApp.swift,\ ContentView.swift /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/AutomataStudioApp.swift /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/ContentView.swift (in target 'AutomataStudio' from project 'AutomataStudio')
+
+SwiftCompile normal arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/AutomataStudioApp.swift (in target 'AutomataStudio' from project 'AutomataStudio')
+    cd /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio
+    
+
+SwiftCompile normal arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/ContentView.swift (in target 'AutomataStudio' from project 'AutomataStudio')
+    cd /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio
+    
+
+SwiftEmitModule normal arm64 Emitting\ module\ for\ AutomataStudio (in target 'AutomataStudio' from project 'AutomataStudio')
+
+EmitSwiftModule normal arm64 (in target 'AutomataStudio' from project 'AutomataStudio')
+    cd /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio
+    
+
+SwiftCompile normal arm64 Compiling\ CanvasViewModel.swift,\ InspectorViewModel.swift /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/ViewModels/CanvasViewModel.swift /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/ViewModels/InspectorViewModel.swift (in target 'AutomataStudio' from project 'AutomataStudio')
+SwiftCompile normal arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/ViewModels/CanvasViewModel.swift (in target 'AutomataStudio' from project 'AutomataStudio')
+    cd /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio
+    
+
+SwiftCompile normal arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/ViewModels/InspectorViewModel.swift (in target 'AutomataStudio' from project 'AutomataStudio')
+    cd /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio
+    
+
+SwiftCompile normal arm64 Compiling\ GeneratedAssetSymbols.swift /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Intermediates.noindex/AutomataStudio.build/Debug/AutomataStudio.build/DerivedSources/GeneratedAssetSymbols.swift (in target 'AutomataStudio' from project 'AutomataStudio')
+
+SwiftCompile normal arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Intermediates.noindex/AutomataStudio.build/Debug/AutomataStudio.build/DerivedSources/GeneratedAssetSymbols.swift (in target 'AutomataStudio' from project 'AutomataStudio')
+    cd /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio
+    
+
+SwiftCompile normal arm64 Compiling\ AppCommands.swift,\ AutomataStudioView.swift /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/Views/AppCommands.swift /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/Views/AutomataStudioView.swift (in target 'AutomataStudio' from project 'AutomataStudio')
+
+SwiftCompile normal arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/Views/AppCommands.swift (in target 'AutomataStudio' from project 'AutomataStudio')
+    cd /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio
+    
+
+SwiftCompile normal arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/Views/AutomataStudioView.swift (in target 'AutomataStudio' from project 'AutomataStudio')
+    cd /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio
+    
+
+SwiftCompile normal arm64 Compiling\ AutomataDocument.swift,\ Automaton.swift /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/Models/AutomataDocument.swift /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/Models/Automaton.swift (in target 'AutomataStudio' from project 'AutomataStudio')
+Failed frontend command:
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swift-frontend -frontend -c /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/Algorithms/DFAMinimizer.swift /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/Algorithms/NFAToDFAConverter.swift /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/Examples/ExampleAutomata.swift -primary-file /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/Models/AutomataDocument.swift -primary-file /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/Models/Automaton.swift /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/Utilities/ClosureMenuItem.swift /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/Utilities/ExportUtilities.swift /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/ViewModels/CanvasViewModel.swift /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/ViewModels/InspectorViewModel.swift /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/Views/Canvas/CanvasView.swift /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/Views/Canvas/SimulationBottomPanel.swift /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/Views/AppCommands.swift /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/Views/AutomataStudioView.swift /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/Views/SimulationPanelView.swift /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/Views/StateContextMenu.swift /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/Views/ToolPaletteView.swift /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/Views/UnifiedSidebarView.swift /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/AutomataStudioApp.swift /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/ContentView.swift /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Intermediates.noindex/AutomataStudio.build/Debug/AutomataStudio.build/DerivedSources/GeneratedAssetSymbols.swift -emit-dependencies-path /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Intermediates.noindex/AutomataStudio.build/Debug/AutomataStudio.build/Objects-normal/arm64/AutomataDocument.d -emit-const-values-path /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Intermediates.noindex/AutomataStudio.build/Debug/AutomataStudio.build/Objects-normal/arm64/AutomataDocument.swiftconstvalues -emit-reference-dependencies-path /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Intermediates.noindex/AutomataStudio.build/Debug/AutomataStudio.build/Objects-normal/arm64/AutomataDocument.swiftdeps -serialize-diagnostics-path /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Intermediates.noindex/AutomataStudio.build/Debug/AutomataStudio.build/Objects-normal/arm64/AutomataDocument.dia -emit-dependencies-path /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Intermediates.noindex/AutomataStudio.build/Debug/AutomataStudio.build/Objects-normal/arm64/Automaton.d -emit-const-values-path /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Intermediates.noindex/AutomataStudio.build/Debug/AutomataStudio.build/Objects-normal/arm64/Automaton.swiftconstvalues -emit-reference-dependencies-path /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Intermediates.noindex/AutomataStudio.build/Debug/AutomataStudio.build/Objects-normal/arm64/Automaton.swiftdeps -serialize-diagnostics-path /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Intermediates.noindex/AutomataStudio.build/Debug/AutomataStudio.build/Objects-normal/arm64/Automaton.dia -emit-localized-strings -emit-localized-strings-path /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Intermediates.noindex/AutomataStudio.build/Debug/AutomataStudio.build/Objects-normal/arm64 -target arm64-apple-macos26.0 -module-can-import-version AppKit 2685.50.120 2685.50.120 -module-can-import-version DeveloperToolsSupport 23.40.26 23.40.26 -module-can-import-version SwiftUI 7.4.27 7.4.27 -load-resolved-plugin /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib/swift/host/plugins/libFoundationMacros.dylib\#/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server\#FoundationMacros -load-resolved-plugin /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib/swift/host/plugins/libObservationMacros.dylib\#/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server\#ObservationMacros -load-resolved-plugin /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib/swift/host/plugins/libPreviewsMacros.dylib\#/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server\#PreviewsMacros -load-resolved-plugin /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib/swift/host/plugins/libSwiftMacros.dylib\#/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server\#SwiftMacros -load-resolved-plugin /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib/swift/host/plugins/libSwiftUIMacros.dylib\#/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server\#SwiftUIMacros -disable-implicit-swift-modules -Xcc -fno-implicit-modules -Xcc -fno-implicit-module-maps -explicit-swift-module-map-file /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Intermediates.noindex/AutomataStudio.build/Debug/AutomataStudio.build/Objects-normal/arm64/AutomataStudio-dependencies-1.json -debug-module-path /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Intermediates.noindex/AutomataStudio.build/Debug/AutomataStudio.build/Objects-normal/arm64/AutomataStudio.swiftmodule -Xllvm -aarch64-use-tbi -enable-objc-interop -stack-check -sdk /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.4.sdk -I /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Products/Debug -F /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Products/Debug -no-color-diagnostics -Xcc -fno-color-diagnostics -enable-testing -g -debug-info-format\=dwarf -dwarf-version\=5 -module-cache-path /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -swift-version 6 -Onone -D DEBUG -serialize-debugging-options -const-gather-protocols-file /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Intermediates.noindex/AutomataStudio.build/Debug/AutomataStudio.build/Objects-normal/arm64/AutomataStudio_const_extract_protocols.json -enable-upcoming-feature MemberImportVisibility -enable-upcoming-feature InferIsolatedConformances -enable-upcoming-feature NonisolatedNonsendingByDefault -enable-experimental-feature DebugDescriptionMacro -default-isolation\=MainActor -empty-abi-descriptor -validate-clang-modules-once -clang-build-session-file /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/ModuleCache.noindex/Session.modulevalidation -Xcc -working-directory -Xcc /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio -enable-anonymous-context-mangled-names -file-compilation-dir /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -Xcc -ivfsstatcache -Xcc /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/SDKStatCaches.noindex/macosx26.4-25E251-688ef53f1462e2c8f657fdc38a81448f30f9ca8789b706f8bd3fc906a70d770f.sdkstatcache -Xcc -I/Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Intermediates.noindex/AutomataStudio.build/Debug/AutomataStudio.build/swift-overrides.hmap -Xcc -iquote -Xcc /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Intermediates.noindex/AutomataStudio.build/Debug/AutomataStudio.build/AutomataStudio-generated-files.hmap -Xcc -I/Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Intermediates.noindex/AutomataStudio.build/Debug/AutomataStudio.build/AutomataStudio-own-target-headers.hmap -Xcc -I/Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Intermediates.noindex/AutomataStudio.build/Debug/AutomataStudio.build/AutomataStudio-all-target-headers.hmap -Xcc -iquote -Xcc /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Intermediates.noindex/AutomataStudio.build/Debug/AutomataStudio.build/AutomataStudio-project-headers.hmap -Xcc -I/Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Products/Debug/include -Xcc -I/Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Intermediates.noindex/AutomataStudio.build/Debug/AutomataStudio.build/DerivedSources-normal/arm64 -Xcc -I/Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Intermediates.noindex/AutomataStudio.build/Debug/AutomataStudio.build/DerivedSources/arm64 -Xcc -I/Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Intermediates.noindex/AutomataStudio.build/Debug/AutomataStudio.build/DerivedSources -Xcc -DDEBUG\=1 -no-auto-bridging-header-chaining -module-name AutomataStudio -frontend-parseable-output -disable-clang-spi -clang-target arm64-apple-macos26.4 -target-sdk-version 26.4 -target-sdk-name macosx26.4 -in-process-plugin-server-path /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/libSwiftInProcPluginServer.dylib -o /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Intermediates.noindex/AutomataStudio.build/Debug/AutomataStudio.build/Objects-normal/arm64/AutomataDocument.o -o /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Build/Intermediates.noindex/AutomataStudio.build/Debug/AutomataStudio.build/Objects-normal/arm64/Automaton.o -index-unit-output-path /AutomataStudio.build/Debug/AutomataStudio.build/Objects-normal/arm64/AutomataDocument.o -index-unit-output-path /AutomataStudio.build/Debug/AutomataStudio.build/Objects-normal/arm64/Automaton.o -index-store-path /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/build_output/Index.noindex/DataStore -index-system-modules
+
+SwiftCompile normal arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/Models/AutomataDocument.swift (in target 'AutomataStudio' from project 'AutomataStudio')
+    cd /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio
+    
+/Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/Models/AutomataDocument.swift:5:51: error: main actor-isolated static property 'automata' can not be referenced from a nonisolated context
+    static var readableContentTypes: [UTType] { [.automata] }
+                                                  ^
+/Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/Models/AutomataDocument.swift:39:16: note: static property declared here
+    static var automata: UTType {
+               ^
+/Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/Models/AutomataDocument.swift:6:51: error: main actor-isolated static property 'automata' can not be referenced from a nonisolated context
+    static var writableContentTypes: [UTType] { [.automata] }
+                                                  ^
+/Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/Models/AutomataDocument.swift:39:16: note: static property declared here
+    static var automata: UTType {
+               ^
+
+SwiftCompile normal arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/Models/Automaton.swift (in target 'AutomataStudio' from project 'AutomataStudio')
+    cd /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio
+    
+
+SwiftCompile normal arm64 Compiling\ CanvasView.swift,\ SimulationBottomPanel.swift /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/Views/Canvas/CanvasView.swift /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/Views/Canvas/SimulationBottomPanel.swift (in target 'AutomataStudio' from project 'AutomataStudio')
+
+SwiftCompile normal arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/Views/Canvas/CanvasView.swift (in target 'AutomataStudio' from project 'AutomataStudio')
+    cd /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio
+    
+
+SwiftCompile normal arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/Views/Canvas/SimulationBottomPanel.swift (in target 'AutomataStudio' from project 'AutomataStudio')
+    cd /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio
+    
+
+SwiftCompile normal arm64 Compiling\ ClosureMenuItem.swift,\ ExportUtilities.swift /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/Utilities/ClosureMenuItem.swift /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/Utilities/ExportUtilities.swift (in target 'AutomataStudio' from project 'AutomataStudio')
+
+SwiftCompile normal arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/Utilities/ClosureMenuItem.swift (in target 'AutomataStudio' from project 'AutomataStudio')
+    cd /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio
+    
+
+SwiftCompile normal arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/Utilities/ExportUtilities.swift (in target 'AutomataStudio' from project 'AutomataStudio')
+    cd /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio
+    
+
+SwiftCompile normal arm64 Compiling\ SimulationPanelView.swift,\ UnifiedSidebarView.swift /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/Views/SimulationPanelView.swift /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/Views/UnifiedSidebarView.swift (in target 'AutomataStudio' from project 'AutomataStudio')
+
+SwiftDriverJobDiscovery normal arm64 Emitting module for AutomataStudio (in target 'AutomataStudio' from project 'AutomataStudio')
+
+** BUILD FAILED **
+
+
+The following build commands failed:
+	SwiftCompile normal arm64 Compiling\ AutomataDocument.swift,\ Automaton.swift /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/Models/AutomataDocument.swift /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/Models/Automaton.swift (in target 'AutomataStudio' from project 'AutomataStudio')
+	SwiftCompile normal arm64 /Users/leonardonapoles/Documents/dev/xcodeprojects/AutomataStudio/AutomataStudio/Models/AutomataDocument.swift (in target 'AutomataStudio' from project 'AutomataStudio')
+	Building project AutomataStudio with scheme AutomataStudio and configuration Debug
+(3 failures)

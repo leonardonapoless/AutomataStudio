@@ -44,46 +44,48 @@ struct CanvasView: View {
                     )
                 }
                 
-                Canvas { context, size in
-                    drawAutomaton(context: context, size: size)
-                    
-                    if let sourceId = tempTransitionSource,
-                       let endPoint = tempTransitionEnd,
-                       let sourceState = automaton.getState(by: sourceId) {
+                TimelineView(.animation) { timeline in
+                    Canvas { context, size in
+                        drawAutomaton(context: context, size: size, date: timeline.date)
                         
-                        var path = Path()
-                        path.move(to: sourceState.position)
-                        path.addLine(to: endPoint)
-                        
-                        context.stroke(
-                            path,
-                            with: .color(.primary.opacity(0.5)),
-                            style: StrokeStyle(lineWidth: 2, dash: [5, 5])
-                        )
-                        
-                        if let targetState = findStateAt(endPoint) {
-                            let targetRect = CGRect(
-                                x: targetState.position.x - 22,
-                                y: targetState.position.y - 22,
-                                width: 44, height: 44
-                            )
+                        if let sourceId = tempTransitionSource,
+                           let endPoint = tempTransitionEnd,
+                           let sourceState = automaton.getState(by: sourceId) {
+                            
+                            var path = Path()
+                            path.move(to: sourceState.position)
+                            path.addLine(to: endPoint)
+                            
                             context.stroke(
-                                Circle().path(in: targetRect),
-                                with: .color(.accentColor),
-                                lineWidth: 2.5
+                                path,
+                                with: .color(.primary.opacity(0.5)),
+                                style: StrokeStyle(lineWidth: 2, dash: [5, 5])
                             )
+                            
+                            if let targetState = findStateAt(endPoint) {
+                                let targetRect = CGRect(
+                                    x: targetState.position.x - 22,
+                                    y: targetState.position.y - 22,
+                                    width: 44, height: 44
+                                )
+                                context.stroke(
+                                    Circle().path(in: targetRect),
+                                    with: .color(.accentColor),
+                                    lineWidth: 2.5
+                                )
+                            }
                         }
-                    }
-                    
-                    if isMarqueeSelecting, let start = marqueeStart, let current = marqueeCurrent {
-                        let rect = CGRect(
-                            x: min(start.x, current.x),
-                            y: min(start.y, current.y),
-                            width: abs(current.x - start.x),
-                            height: abs(current.y - start.y)
-                        )
-                        context.fill(Path(rect), with: .color(Color.accentColor.opacity(0.1)))
-                        context.stroke(Path(rect), with: .color(Color.accentColor), style: StrokeStyle(lineWidth: 1, dash: [5, 5]))
+                        
+                        if isMarqueeSelecting, let start = marqueeStart, let current = marqueeCurrent {
+                            let rect = CGRect(
+                                x: min(start.x, current.x),
+                                y: min(start.y, current.y),
+                                width: abs(current.x - start.x),
+                                height: abs(current.y - start.y)
+                            )
+                            context.fill(Path(rect), with: .color(Color.accentColor.opacity(0.1)))
+                            context.stroke(Path(rect), with: .color(Color.accentColor), style: StrokeStyle(lineWidth: 1, dash: [5, 5]))
+                        }
                     }
                 }
                 .drawingGroup()
@@ -484,24 +486,37 @@ struct CanvasView: View {
     
     // MARK: - Drawing
     
-    private func drawAutomaton(context: GraphicsContext, size: CGSize) {
+    private func drawAutomaton(context: GraphicsContext, size: CGSize, date: Date) {
         for transition in automaton.transitions {
-            drawTransition(transition, context: context)
+            drawTransition(transition, context: context, date: date)
         }
         
         for state in automaton.states {
-            drawState(state, context: context)
+            drawState(state, context: context, date: date)
         }
     }
     
-    private func drawState(_ state: AutomatonState, context: GraphicsContext) {
+    private func drawState(_ state: AutomatonState, context: GraphicsContext, date: Date) {
         let isSelected = selectedStates.contains(state.id)
         let isHovered = hoveredState == state.id
-        let isActive = viewModel.activeStates.contains(state.id)
         
-        let fillColor = stateColor(for: state, isActive: isActive)
+        // Dynamic animation duration based on playback speed
+        let animationDuration = 0.5 / viewModel.playbackSpeed
+        let progress = min(1.0, max(0, date.timeIntervalSince(viewModel.lastStepTime) / animationDuration))
+        
+        let isArrivalActive = viewModel.activeStates.contains(state.id) && (progress >= 1.0 || viewModel.simulationStep == 0)
+        let isFailureActive = viewModel.isCurrentStepInvalid && viewModel.previousActiveStates.contains(state.id)
+        
+        let isActive = isArrivalActive || isFailureActive
+        
+        var simulationColor: Color = .green
+        if let result = viewModel.simulationResult, !result.accepted {
+            simulationColor = .red
+        } else if isFailureActive {
+            simulationColor = .orange
+        }
+        
         let stateSize: CGFloat = 40
-        
         let stateRect = CGRect(
             x: state.position.x - stateSize/2,
             y: state.position.y - stateSize/2,
@@ -509,9 +524,10 @@ struct CanvasView: View {
             height: stateSize
         )
         
+        let fillColor = stateColor(for: state, isActive: isActive, simulationColor: simulationColor)
         context.fill(Circle().path(in: stateRect), with: .color(fillColor))
         
-        let strokeColor: Color = isSelected ? .accentColor : (isHovered ? .accentColor.opacity(0.6) : .primary)
+        let strokeColor: Color = isSelected ? .accentColor : (isHovered ? .accentColor.opacity(0.6) : (isActive ? simulationColor : .primary))
         let lineWidth: CGFloat = isSelected ? 3 : 2
         context.stroke(Circle().path(in: stateRect), with: .color(strokeColor), lineWidth: lineWidth)
         
@@ -526,28 +542,49 @@ struct CanvasView: View {
         drawStateLabel(state, context: context)
     }
     
-    private func drawTransition(_ transition: Transition, context: GraphicsContext) {
+    private func drawTransition(_ transition: Transition, context: GraphicsContext, date: Date) {
         guard let fromState = automaton.getState(by: transition.fromStateId),
               let toState = automaton.getState(by: transition.toStateId) else { return }
         
         let isSelected = selectedTransitions.contains(transition.id)
+        let isActive = viewModel.lastActiveTransitions.contains(transition.id)
         let isSelfLoop = fromState.id == toState.id
         
         let path = transitionPath(from: fromState.position, to: toState.position, isSelfLoop: isSelfLoop)
         
-        let strokeColor: Color = isSelected ? .accentColor : .primary
+        // base line
+        let baseColor: Color = isSelected ? .accentColor : .primary
         let lineWidth: CGFloat = isSelected ? 3 : 2
-        context.stroke(
-            path,
-            with: .color(strokeColor),
-            lineWidth: lineWidth
-        )
+        context.stroke(path, with: .color(baseColor), lineWidth: lineWidth)
         
-        drawArrowhead(on: path, isSelfLoop: isSelfLoop, color: strokeColor, context: context)
+        // simulation fill animation
+        if isActive {
+            let animationDuration = 0.5 / viewModel.playbackSpeed
+            let progress = min(1.0, max(0, date.timeIntervalSince(viewModel.lastStepTime) / animationDuration))
+            let trimmedPath = path.trimmedPath(from: 0, to: progress)
+            
+            var simulationColor: Color = .green
+            if let result = viewModel.simulationResult, !result.accepted {
+                simulationColor = .red
+            } else if viewModel.isCurrentStepInvalid {
+                simulationColor = .orange
+            }
+            
+            context.stroke(trimmedPath, with: .color(simulationColor), style: StrokeStyle(lineWidth: lineWidth + 1, lineCap: .round))
+        }
+        
+        var simulationColor: Color = .green
+        if let result = viewModel.simulationResult, !result.accepted {
+            simulationColor = .red
+        } else if viewModel.isCurrentStepInvalid {
+            simulationColor = .orange
+        }
+        
+        drawArrowhead(on: path, isSelfLoop: isSelfLoop, color: isActive ? simulationColor : baseColor, context: context)
         
         drawTransitionLabel(transition, path: path, context: context)
     }
-    
+
     private func drawStartStateIndicator(at position: CGPoint, context: GraphicsContext) {
         let indicatorSize: CGFloat = 8
         let indicatorRect = CGRect(
@@ -704,9 +741,9 @@ struct CanvasView: View {
     
     // MARK: - Helper Methods
     
-    private func stateColor(for state: AutomatonState, isActive: Bool) -> Color {
+    private func stateColor(for state: AutomatonState, isActive: Bool, simulationColor: Color) -> Color {
         if isActive {
-            return .yellow.opacity(0.7)
+            return simulationColor.opacity(0.7)
         } else if state.isStart && state.isAccepting {
             return .purple.opacity(0.3)
         } else if state.isStart {

@@ -8,8 +8,6 @@ struct ExampleAutomata {
         var automaton = Automaton(
             name: "Binary Divisible by 3",
             type: .dfa,
-            author: "Automata Studio",
-            description: "DFA that accepts binary strings divisible by 3"
         )
         
         let q0 = AutomatonState(name: "q0", position: CGPoint(x: 150, y: 150), isStart: true, isAccepting: true)  // remainder 0
@@ -39,8 +37,6 @@ struct ExampleAutomata {
         var automaton = Automaton(
             name: "Pattern (a|b)*abb",
             type: .nfa,
-            author: "Automata Studio",
-            description: "NFA that accepts strings ending with 'abb'"
         )
         
         let q0 = AutomatonState(name: "q0", position: CGPoint(x: 100, y: 150), isStart: true, isAccepting: false)
@@ -70,8 +66,6 @@ struct ExampleAutomata {
         var automaton = Automaton(
             name: "Binary Increment",
             type: .turingMachine,
-            author: "Automata Studio",
-            description: "Turing machine that increments a binary number by 1"
         )
         
         let q0 = AutomatonState(name: "q0", position: CGPoint(x: 150, y: 150), isStart: true, isAccepting: false)
@@ -100,8 +94,6 @@ struct ExampleAutomata {
         var automaton = Automaton(
             name: "Palindrome (Length ≤ 3)",
             type: .dfa,
-            author: "Automata Studio",
-            description: "DFA that accepts palindromes of length at most 3"
         )
         
         let q0 = AutomatonState(name: "q0", position: CGPoint(x: 100, y: 150), isStart: true, isAccepting: true)  // empty string
