@@ -91,6 +91,7 @@ struct CanvasView: View {
                 .drawingGroup()
                 .scaleEffect(viewModel.zoomLevel)
                 .offset(viewModel.panOffset)
+                
                 // MARK: - Gestures
                 .gesture(primaryDragGesture)
                 .gesture(magnifyGesture)

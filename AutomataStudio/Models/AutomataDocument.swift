@@ -37,6 +37,6 @@ struct AutomataDocument: FileDocument {
 
 extension UTType {
     nonisolated static var automata: UTType {
-        UTType(tag: "automata", tagClass: .filenameExtension, conformingTo: .json) ?? .json
+        UTType(exportedAs: "com.automatastudio.project", conformingTo: .json)
     }
 }

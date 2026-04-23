@@ -91,6 +91,26 @@ struct AutomataStudioView: View {
                             Label("Fit", systemImage: "arrow.up.left.and.down.right.magnifyingglass")
                         }
                     }
+                    Button {
+                        NSApp.sendAction(#selector(NSDocument.save(_:)), to: nil, from: nil)
+                    } label: {
+                        Label("Save", systemImage: "tray.and.arrow.down")
+                    }
+                    .help("Save Project (⌘S)")
+
+                    Menu {
+                        Button("JFLAP (.jff)") {
+                            exportJFLAP()
+                        }
+                        Button("SVG Image") {
+                            exportSVG()
+                        }
+                        Button("Graphviz (.dot)") {
+                            exportDOT()
+                        }
+                    } label: {
+                        Label("Export", systemImage: "square.and.arrow.up")
+                    }
                 }
             }
         }
@@ -127,6 +147,43 @@ struct AutomataStudioView: View {
         .onChange(of: inspectorViewModel.automaton) { _, newAutomaton in
             if document.automaton != newAutomaton {
                 document.automaton = newAutomaton
+            }
+        }
+    }
+    
+    // MARK: - Export Actions
+    
+    private func exportJFLAP() {
+        let content = document.automaton.exportToJFLAP()
+        saveFile(content: content, defaultName: document.automaton.name, extension: "jff")
+    }
+    
+    private func exportSVG() {
+        let content = document.automaton.exportToSVG()
+        saveFile(content: content, defaultName: document.automaton.name, extension: "svg")
+    }
+    
+    private func exportDOT() {
+        let content = document.automaton.exportToDOT()
+        saveFile(content: content, defaultName: document.automaton.name, extension: "dot")
+    }
+    
+    private func saveFile(content: String, defaultName: String, extension ext: String) {
+        let savePanel = NSSavePanel()
+        savePanel.allowedContentTypes = [UTType(filenameExtension: ext) ?? .xml]
+        savePanel.canCreateDirectories = true
+        savePanel.isExtensionHidden = false
+        savePanel.title = "Export Automaton"
+        savePanel.message = "Choose a location to save the exported file."
+        savePanel.nameFieldStringValue = "\(defaultName).\(ext)"
+        
+        savePanel.begin { response in
+            if response == .OK, let url = savePanel.url {
+                do {
+                    try content.write(to: url, atomically: true, encoding: .utf8)
+                } catch {
+                    print("Failed to save file: \(error)")
+                }
             }
         }
     }
