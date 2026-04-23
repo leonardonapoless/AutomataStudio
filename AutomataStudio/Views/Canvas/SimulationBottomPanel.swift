@@ -86,6 +86,7 @@ struct SimulationBottomPanel: View {
                                         }
                                     }
                                     .padding(.horizontal, 2)
+                                    .padding(.vertical, 8)
                                 }
                                 .onChange(of: viewModel.simulationStep) { _, newValue in
                                     withAnimation {
@@ -93,7 +94,7 @@ struct SimulationBottomPanel: View {
                                     }
                                 }
                             }
-                            .frame(height: 50)
+
                             .transition(.move(edge: .bottom).combined(with: .opacity))
                         }
                         
@@ -201,7 +202,6 @@ struct TapeCell: View {
                 let color = isActive ? (isInvalid ? Color.orange : Color.accentColor) : Color.primary.opacity(0.05)
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
                     .fill(color)
-                    .shadow(color: color.opacity(isActive ? 0.3 : 0), radius: 4, x: 0, y: 2)
             }
             .foregroundStyle(isActive ? .white : .primary)
             .scaleEffect(isActive ? 1.1 : 1.0)

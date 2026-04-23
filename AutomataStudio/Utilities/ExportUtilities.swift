@@ -94,7 +94,70 @@ struct ExportUtilities {
         return svg
     }
     
-    // MARK: - Project Export
+    // MARK: - JFLAP Export .jff
+    static func exportToJFLAP(_ automaton: Automaton) -> String {
+        var xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><!--Created with AutomataStudio--><structure>\n"
+        
+        let type = switch automaton.type {
+        case .dfa, .nfa: "fa"
+        case .turingMachine: "turing"
+        }
+        
+        xml += "\t<type>\(type)</type>\n"
+        xml += "\t<automaton>\n"
+        xml += "\t\t<!--The list of states.-->\n"
+        
+        var idMap: [UUID: Int] = [:]
+        for (index, state) in automaton.states.enumerated() {
+            idMap[state.id] = index
+            
+            xml += "\t\t<state id=\"\(index)\" name=\"\(state.name)\">\n"
+            xml += "\t\t\t<x>\(state.position.x)</x>\n"
+            xml += "\t\t\t<y>\(state.position.y)</y>\n"
+            if state.isStart {
+                xml += "\t\t\t<initial/>\n"
+            }
+            if state.isAccepting {
+                xml += "\t\t\t<final/>\n"
+            }
+            xml += "\t\t</state>\n"
+        }
+        
+        xml += "\t\t<!--The list of transitions.-->\n"
+        for transition in automaton.transitions {
+            guard let fromId = idMap[transition.fromStateId],
+                  let toId = idMap[transition.toStateId] else { continue }
+            
+            if transition.isEpsilon {
+                xml += "\t\t<transition>\n"
+                xml += "\t\t\t<from>\(fromId)</from>\n"
+                xml += "\t\t\t<to>\(toId)</to>\n"
+                xml += "\t\t\t<read/>\n"
+                xml += "\t\t</transition>\n"
+            } else {
+                for symbol in transition.symbols {
+                    xml += "\t\t<transition>\n"
+                    xml += "\t\t\t<from>\(fromId)</from>\n"
+                    xml += "\t\t\t<to>\(toId)</to>\n"
+                    xml += "\t\t\t<read>\(symbol)</read>\n"
+                    xml += "\t\t</transition>\n"
+                }
+                
+                if transition.symbols.isEmpty && !transition.isEpsilon {
+                    xml += "\t\t<transition>\n"
+                    xml += "\t\t\t<from>\(fromId)</from>\n"
+                    xml += "\t\t\t<to>\(toId)</to>\n"
+                    xml += "\t\t\t<read/>\n"
+                    xml += "\t\t</transition>\n"
+                }
+            }
+        }
+        
+        xml += "\t</automaton>\n"
+        xml += "</structure>"
+        
+        return xml
+    }
     
     static func exportProject(_ automaton: Automaton) -> Data? {
         let encoder = JSONEncoder()
@@ -133,5 +196,9 @@ extension Automaton {
     
     func exportToPNG() -> Data? {
         return ExportUtilities.exportToPNG(self)
+    }
+    
+    func exportToJFLAP() -> String {
+        return ExportUtilities.exportToJFLAP(self)
     }
 }
