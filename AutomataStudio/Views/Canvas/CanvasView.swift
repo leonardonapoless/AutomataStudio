@@ -640,10 +640,8 @@ struct CanvasView: View {
     
     private func drawStateLabel(_ state: AutomatonState, context: GraphicsContext) {
         let text = Text(state.displayName)
-            .font(.system(.caption, design: .monospaced))
-            .fontWeight(.medium)
-        
-        context.draw(text, at: CGPoint(x: state.position.x, y: state.position.y + 25))
+            .font(.system(size: 14, weight: .regular, design: .monospaced))
+        context.draw(text, at: CGPoint(x: state.position.x, y: state.position.y + 30))
     }
     
     private func drawTransitionLabel(_ transition: Transition, path: Path, context: GraphicsContext) {
@@ -651,8 +649,7 @@ struct CanvasView: View {
               let toState = automaton.getState(by: transition.toStateId) else { return }
         
         let text = Text(transition.displaySymbols)
-            .font(.system(.caption2, design: .monospaced))
-            .fontWeight(.medium)
+            .font(.system(size: 16, weight: .regular, design: .monospaced))
         
         let labelPosition: CGPoint
         if fromState.id == toState.id {
