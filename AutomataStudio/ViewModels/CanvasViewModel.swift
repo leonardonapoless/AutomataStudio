@@ -219,13 +219,14 @@ class CanvasViewModel: ObservableObject {
     // MARK: - Simulation
     
     func startSimulation(input: String) {
+        stopAutoSimulation()
         simulationInput = input
         simulationStep = 0
         isSimulating = true
         isCurrentStepInvalid = false
         
         if let startState = automaton.getStartState() {
-            activeStates = [startState.id]
+            activeStates = epsilonClosure(of: [startState.id])
         }
         
         simulationResult = nil
@@ -263,7 +264,8 @@ class CanvasViewModel: ObservableObject {
         lastStepTime = .now
         
         if isCurrentStepInvalid || simulationStep >= simulationInput.count {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+                guard let self = self else { return }
                 if self.isSimulating {
                     self.finishSimulation()
                 }
