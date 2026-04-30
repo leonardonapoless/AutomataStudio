@@ -148,24 +148,17 @@ struct SimulationBottomPanel: View {
                                 .disabled(viewModel.simulationStep >= input.count && viewModel.simulationResult != nil)
                             }
                             
-                            Menu {
-                                Picker("Playback Speed", selection: $viewModel.playbackSpeed) {
-                                    Text("0.5x").tag(0.5)
-                                    Text("1.0x").tag(1.0)
-                                    Text("2.0x").tag(2.0)
-                                    Text("4.0x").tag(4.0)
-                                }
-                            } label: {
-                                VStack(spacing: 4) {
-                                    Text("\(String(format: "%.1fx", viewModel.playbackSpeed))")
-                                        .font(.system(.body, design: .monospaced))
-                                        .fontWeight(.bold)
-                                    Text("Speed")
-                                        .font(.caption2)
-                                }
+                            VStack(spacing: 4) {
+                                Text("\(String(format: "%.1fx", viewModel.playbackSpeed))")
+                                    .font(.system(.body, design: .monospaced))
+                                    .fontWeight(.bold)
+                                Slider(value: $viewModel.playbackSpeed, in: 0.5...4.0, step: 0.5)
+                                    .frame(width: 120)
+                                    .sensoryFeedback(.levelChange, trigger: viewModel.playbackSpeed)
+                                Text("Speed")
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
                             }
-                            .menuStyle(.borderlessButton)
-                            .frame(width: 50)
                         }
                         .padding(.bottom, 12)
                     }
