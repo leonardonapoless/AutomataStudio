@@ -12,8 +12,21 @@ class InspectorViewModel: ObservableObject {
     
     private var cancellables = Set<AnyCancellable>()
     
+    var undoManager: UndoManager?
+    
     init(automaton: Automaton = Automaton(name: "Untitled", type: .dfa)) {
         self.automaton = automaton
+    }
+    
+    func registerUndo(oldAutomaton: Automaton) {
+        guard let undoManager = undoManager else { return }
+        undoManager.registerUndo(withTarget: self) { target in
+            target.registerUndo(oldAutomaton: target.automaton)
+            target.automaton = oldAutomaton
+        }
+        if !undoManager.isUndoing && !undoManager.isRedoing {
+            undoManager.setActionName("Inspector Edit")
+        }
     }
     
     // MARK: - State Editing
@@ -32,6 +45,7 @@ class InspectorViewModel: ObservableObject {
     
     func updateSelectedState() {
         guard var state = selectedState else { return }
+        registerUndo(oldAutomaton: automaton)
         
         state.name = editingStateName
         automaton.updateState(state)
@@ -40,6 +54,7 @@ class InspectorViewModel: ObservableObject {
     
     func toggleStartState() {
         guard var state = selectedState else { return }
+        registerUndo(oldAutomaton: automaton)
         
         if !state.isStart {
             for var otherState in automaton.states {
@@ -57,6 +72,7 @@ class InspectorViewModel: ObservableObject {
     
     func toggleAcceptingState() {
         guard var state = selectedState else { return }
+        registerUndo(oldAutomaton: automaton)
         
         state.isAccepting.toggle()
         automaton.updateState(state)
@@ -79,6 +95,7 @@ class InspectorViewModel: ObservableObject {
     
     func updateSelectedTransition() {
         guard var transition = selectedTransition else { return }
+        registerUndo(oldAutomaton: automaton)
         
         let symbols = editingTransitionSymbols
             .split(separator: ",")
@@ -102,18 +119,22 @@ class InspectorViewModel: ObservableObject {
     // MARK: - Automaton Properties
     
     func updateAutomatonName(_ name: String) {
+        registerUndo(oldAutomaton: automaton)
         automaton.name = name
     }
     
     func updateAutomatonType(_ type: AutomatonType) {
+        registerUndo(oldAutomaton: automaton)
         automaton.type = type
     }
     
     func updateAutomatonDescription(_ description: String) {
+        registerUndo(oldAutomaton: automaton)
         automaton.description = description
     }
     
     func updateAutomatonAuthor(_ author: String) {
+        registerUndo(oldAutomaton: automaton)
         automaton.author = author
     }
     
