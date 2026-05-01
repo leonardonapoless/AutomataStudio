@@ -46,6 +46,9 @@ struct CanvasView: View {
                 
                 TimelineView(.animation) { timeline in
                     Canvas { context, size in
+                        context.translateBy(x: viewModel.panOffset.width, y: viewModel.panOffset.height)
+                        context.scaleBy(x: viewModel.zoomLevel, y: viewModel.zoomLevel)
+                        
                         drawAutomaton(context: context, size: size, date: timeline.date)
                         
                         if let sourceId = tempTransitionSource,
@@ -89,21 +92,18 @@ struct CanvasView: View {
                     }
                 }
                 .drawingGroup()
-                .scaleEffect(viewModel.zoomLevel)
-                .offset(viewModel.panOffset)
-                
-                // MARK: - Gestures
-                .gesture(primaryDragGesture)
-                .gesture(magnifyGesture)
-                .onTapGesture(count: 2) { location in
-                    handleDoubleTap(at: location)
-                }
-                .onTapGesture(count: 1) { location in
-                    handleSingleTap(at: location)
-                }
-                .onContinuousHover { phase in
-                    handleHover(phase)
-                }
+            }
+            // MARK: - Gestures
+            .gesture(primaryDragGesture)
+            .gesture(magnifyGesture)
+            .onTapGesture(count: 2) { location in
+                handleDoubleTap(at: location)
+            }
+            .onTapGesture(count: 1) { location in
+                handleSingleTap(at: location)
+            }
+            .onContinuousHover { phase in
+                handleHover(phase)
             }
             .background(
                 GeometryReader { geo in
@@ -253,11 +253,10 @@ struct CanvasView: View {
     
     private func installEventMonitors() {
         scrollMonitor = NSEvent.addLocalMonitorForEvents(matching: .scrollWheel) { event in
+            guard let window = event.window, let contentView = window.contentView else { return event }
             let windowPoint = event.locationInWindow
-            guard let window = event.window else { return event }
             
-            let screenPoint = window.convertPoint(toScreen: windowPoint)
-            let globalPoint = CGPoint(x: screenPoint.x, y: NSScreen.main!.frame.height - screenPoint.y)
+            let globalPoint = CGPoint(x: windowPoint.x, y: contentView.bounds.height - windowPoint.y)
             
             guard canvasFrame.contains(globalPoint) else { return event }
             
@@ -278,11 +277,10 @@ struct CanvasView: View {
         }
         
         rightClickMonitor = NSEvent.addLocalMonitorForEvents(matching: .rightMouseDown) { event in
+            guard let window = event.window, let contentView = window.contentView else { return event }
             let windowPoint = event.locationInWindow
-            guard let window = event.window else { return event }
             
-            let screenPoint = window.convertPoint(toScreen: windowPoint)
-            let globalPoint = CGPoint(x: screenPoint.x, y: NSScreen.main!.frame.height - screenPoint.y)
+            let globalPoint = CGPoint(x: windowPoint.x, y: contentView.bounds.height - windowPoint.y)
             
             guard canvasFrame.contains(globalPoint) else { return event }
             
@@ -334,7 +332,7 @@ struct CanvasView: View {
         
         switch target {
         case .state(let state):
-            builder.addItem("Edit State", icon: "pencil") {
+            builder.addItem("Rename State", icon: "pencil") {
                 self.onRenameState?(state.id)
             }
             
@@ -366,7 +364,7 @@ struct CanvasView: View {
             
             builder.addSeparator()
             
-            builder.addDestructiveItem("Delete State", icon: "trash") {
+            builder.addItem("Delete State", icon: "trash") {
                 self.viewModel.removeState(state.id)
                 self.selectedStates.remove(state.id)
             }
@@ -378,7 +376,7 @@ struct CanvasView: View {
             
             builder.addSeparator()
             
-            builder.addDestructiveItem("Delete Transition", icon: "trash") {
+            builder.addItem("Delete Transition", icon: "trash") {
                 self.viewModel.removeTransition(transition.id)
                 self.selectedTransitions.remove(transition.id)
             }

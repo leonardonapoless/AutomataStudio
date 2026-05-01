@@ -32,8 +32,21 @@ class CanvasViewModel: ObservableObject {
     
     private var cancellables = Set<AnyCancellable>()
     
+    var undoManager: UndoManager?
+    
     init(automaton: Automaton = Automaton(name: "Untitled", type: .dfa)) {
         self.automaton = automaton
+    }
+    
+    func registerUndo(oldAutomaton: Automaton) {
+        guard let undoManager = undoManager else { return }
+        undoManager.registerUndo(withTarget: self) { target in
+            target.registerUndo(oldAutomaton: target.automaton)
+            target.automaton = oldAutomaton
+        }
+        if !undoManager.isUndoing && !undoManager.isRedoing {
+            undoManager.setActionName("Canvas Edit")
+        }
     }
     
     // MARK: - Canvas Operations
@@ -123,16 +136,19 @@ class CanvasViewModel: ObservableObject {
     // MARK: - State Management
     
     func addState(at location: CGPoint) -> AutomatonState {
+        registerUndo(oldAutomaton: automaton)
         let snappedLocation = snappedPosition(location)
         let newState = automaton.addState(at: snappedLocation)
         return newState
     }
     
     func removeState(_ stateId: UUID) {
+        registerUndo(oldAutomaton: automaton)
         automaton.removeState(stateId)
     }
     
     func updateState(_ state: AutomatonState) {
+        registerUndo(oldAutomaton: automaton)
         automaton.updateState(state)
     }
     
@@ -145,6 +161,7 @@ class CanvasViewModel: ObservableObject {
     }
     
     func startDraggingState(_ stateId: UUID, from location: CGPoint) {
+        registerUndo(oldAutomaton: automaton)
         draggedState = stateId
         isDragging = true
         
@@ -176,14 +193,17 @@ class CanvasViewModel: ObservableObject {
     // MARK: - Transition Management
     
     func addTransition(from fromStateId: UUID, to toStateId: UUID, symbols: [String] = [], isEpsilon: Bool = false) -> Transition {
+        registerUndo(oldAutomaton: automaton)
         return automaton.addTransition(from: fromStateId, to: toStateId, symbols: symbols, isEpsilon: isEpsilon)
     }
     
     func removeTransition(_ transitionId: UUID) {
+        registerUndo(oldAutomaton: automaton)
         automaton.removeTransition(transitionId)
     }
     
     func updateTransition(_ transition: Transition) {
+        registerUndo(oldAutomaton: automaton)
         automaton.updateTransition(transition)
     }
     

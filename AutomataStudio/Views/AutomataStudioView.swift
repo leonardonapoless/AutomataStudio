@@ -2,6 +2,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct AutomataStudioView: View {
+    @Environment(\.undoManager) var undoManager
     @Binding var document: AutomataDocument
     @StateObject private var canvasViewModel = CanvasViewModel()
     @StateObject private var inspectorViewModel = InspectorViewModel()
@@ -15,7 +16,7 @@ struct AutomataStudioView: View {
     
     var body: some View {
         NavigationSplitView {
-            UnifiedSidebarView(
+            SidebarView(
                 automaton: document.automaton,
                 selectedStates: $selectedStates,
                 selectedTransitions: $selectedTransitions,
@@ -50,14 +51,16 @@ struct AutomataStudioView: View {
             }
             .background(Color(nsColor: .windowBackgroundColor))
             .toolbar {
-                ToolbarItemGroup(placement: .primaryAction) {
+                ToolbarItem(placement: .primaryAction) {
                     ControlGroup {
                         ForEach(CanvasMode.allCases, id: \.self) { mode in
                             modeToggle(for: mode)
                         }
                     }
                     .controlGroupStyle(.navigation)
-                    
+                }
+                
+                ToolbarItem(placement: .primaryAction) {
                     Button {
                         withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
                             isSimulationPanelVisible.toggle()
@@ -71,7 +74,9 @@ struct AutomataStudioView: View {
                     }
                     .keyboardShortcut("R", modifiers: .command)
                     .help("Toggle Simulation Panel (⌘R)")
-                    
+                }
+                
+                ToolbarItem(placement: .primaryAction) {
                     ControlGroup {
                         Button {
                             canvasViewModel.zoomOut()
@@ -91,25 +96,30 @@ struct AutomataStudioView: View {
                             Label("Fit", systemImage: "arrow.up.left.and.down.right.magnifyingglass")
                         }
                     }
-                    Button {
-                        NSApp.sendAction(#selector(NSDocument.save(_:)), to: nil, from: nil)
-                    } label: {
-                        Label("Save", systemImage: "tray.and.arrow.down")
-                    }
-                    .help("Save Project (⌘S)")
-
-                    Menu {
-                        Button("JFLAP (.jff)") {
-                            exportJFLAP()
+                }
+                
+                ToolbarItem(placement: .primaryAction) {
+                    ControlGroup {
+                        Button {
+                            NSApp.sendAction(#selector(NSDocument.save(_:)), to: nil, from: nil)
+                        } label: {
+                            Label("Save", systemImage: "square.and.arrow.down")
                         }
-                        Button("SVG Image") {
-                            exportSVG()
+                        .help("Save Project (⌘S)")
+                        
+                        Menu {
+                            Button("JFLAP (.jff)") {
+                                exportJFLAP()
+                            }
+                            Button("SVG Image") {
+                                exportSVG()
+                            }
+                            Button("Graphviz (.dot)") {
+                                exportDOT()
+                            }
+                        } label: {
+                            Label("Export", systemImage: "square.and.arrow.up")
                         }
-                        Button("Graphviz (.dot)") {
-                            exportDOT()
-                        }
-                    } label: {
-                        Label("Export", systemImage: "square.and.arrow.up")
                     }
                 }
             }
@@ -202,7 +212,10 @@ struct AutomataStudioView: View {
     
     private func syncViewModels() {
         canvasViewModel.automaton = document.automaton
+        canvasViewModel.undoManager = undoManager
+        
         inspectorViewModel.automaton = document.automaton
+        inspectorViewModel.undoManager = undoManager
     }
     
     private func updateViewModels(with automaton: Automaton) {

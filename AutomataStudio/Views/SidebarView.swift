@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct UnifiedSidebarView: View {
+struct SidebarView: View {
     let automaton: Automaton
     @Binding var selectedStates: Set<UUID>
     @Binding var selectedTransitions: Set<UUID>
@@ -264,11 +264,14 @@ struct StatePropertiesSection: View {
     let state: AutomatonState
     @ObservedObject var viewModel: InspectorViewModel
     
+    @FocusState private var isNameFocused: Bool
+    
     var body: some View {
         GroupBox("State: \(state.displayName)") {
             VStack(alignment: .leading, spacing: 12) {
                 LabeledContent("Name") {
                     TextField("Name", text: $viewModel.editingStateName)
+                        .focused($isNameFocused)
                         .onSubmit { viewModel.updateSelectedState() }
                         .textFieldStyle(.plain)
                         .multilineTextAlignment(.trailing)
@@ -289,6 +292,12 @@ struct StatePropertiesSection: View {
             .padding(.vertical, 4)
         }
         .groupBoxStyle(GlassGroupBoxStyle())
+        .onAppear {
+            isNameFocused = true
+        }
+        .onChange(of: state.id) { _, _ in
+            isNameFocused = true
+        }
     }
 }
 
