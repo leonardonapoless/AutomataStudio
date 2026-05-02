@@ -62,7 +62,7 @@ struct AppCommands: Commands {
             
             Button("Step Simulation") {
             }
-            .keyboardShortcut("r", modifiers: [.command, .shift])
+            .keyboardShortcut("t", modifiers: [.command, .shift])
             
             Button("Reset Simulation") {
             }
@@ -93,7 +93,7 @@ struct AppCommands: Commands {
                 
                 Button("Check Emptiness") {
                 }
-                .keyboardShortcut("e", modifiers: [.command, .shift])
+                .keyboardShortcut("0", modifiers: [.command, .shift])
             }
         }
         

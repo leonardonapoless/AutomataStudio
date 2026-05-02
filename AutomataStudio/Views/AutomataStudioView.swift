@@ -37,7 +37,7 @@ struct AutomataStudioView: View {
                         }
                     },
                     onEditTransition: { transitionId in
-                        if let transition = canvasViewModel.automaton.transitions.first(where: { $0.id == transitionId }) {
+                        if let transition = document.automaton.transitions.first(where: { $0.id == transitionId }) {
                             inspectorViewModel.selectTransition(transition)
                         }
                     }
@@ -121,6 +121,19 @@ struct AutomataStudioView: View {
                             Label("Export", systemImage: "square.and.arrow.up")
                         }
                     }
+                }
+                
+                ToolbarItem(placement: .primaryAction) {
+                    Menu {
+                        ForEach(ExampleAutomata.allExamples(), id: \.id) { example in
+                            Button(example.name) {
+                                loadExample(example)
+                            }
+                        }
+                    } label: {
+                        Label("Examples", systemImage: "book")
+                    }
+                    .help("Load Example Automaton")
                 }
             }
         }
@@ -238,6 +251,14 @@ struct AutomataStudioView: View {
         }
         selectedStates.removeAll()
         selectedTransitions.removeAll()
+    }
+    
+    private func loadExample(_ example: Automaton) {
+        canvasViewModel.resetSimulation()
+        document.automaton = example
+        selectedStates.removeAll()
+        selectedTransitions.removeAll()
+        canvasViewModel.zoomToFit()
     }
     
     private func shortcutLabel(for mode: CanvasMode) -> String {

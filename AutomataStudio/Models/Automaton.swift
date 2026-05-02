@@ -2,7 +2,6 @@ import Foundation
 import CoreGraphics
 
 // MARK: - Simulation Result
-
 struct SimulationResult: Codable, Equatable, Hashable, Sendable {
     let accepted: Bool
     let finalStates: Set<UUID>
@@ -10,7 +9,6 @@ struct SimulationResult: Codable, Equatable, Hashable, Sendable {
 }
 
 // MARK: - Canvas Mode
-
 enum CanvasMode: String, CaseIterable, Identifiable, Codable, Sendable {
     case select = "Select"
     case addState = "Add State"
@@ -28,7 +26,6 @@ enum CanvasMode: String, CaseIterable, Identifiable, Codable, Sendable {
 }
 
 // MARK: - Automaton Types
-
 enum AutomatonType: String, CaseIterable, Codable, Sendable {
     case dfa = "DFA"
     case nfa = "NFA"
@@ -44,7 +41,6 @@ enum AutomatonType: String, CaseIterable, Codable, Sendable {
 }
 
 // MARK: - AutomatonState Model
-
 struct AutomatonState: Identifiable, Codable, Equatable, Hashable, Sendable {
     let id: UUID
     var name: String
@@ -70,7 +66,6 @@ struct AutomatonState: Identifiable, Codable, Equatable, Hashable, Sendable {
 }
 
 // MARK: - Transition Model
-
 struct Transition: Identifiable, Codable, Equatable, Sendable {
     let id: UUID
     var fromStateId: UUID
@@ -95,7 +90,6 @@ struct Transition: Identifiable, Codable, Equatable, Sendable {
 }
 
 // MARK: - Main Automaton Model
-
 struct Automaton: Codable, Equatable, Sendable {
     var id: UUID
     var name: String
@@ -130,7 +124,6 @@ struct Automaton: Codable, Equatable, Sendable {
     }
     
     // MARK: - Codable
-    
     enum CodingKeys: String, CodingKey {
         case id, name, type, states, transitions, alphabet, createdDate, modifiedDate, author, description, tapeAlphabet, blankSymbol
     }
@@ -168,7 +161,6 @@ struct Automaton: Codable, Equatable, Sendable {
     }
     
     // MARK: - State Management
-    
     mutating func addState(at position: CGPoint) -> AutomatonState {
         var index = states.count
         var candidateName = "q\(index)"
@@ -203,7 +195,6 @@ struct Automaton: Codable, Equatable, Sendable {
     }
     
     // MARK: - Transition Management
-    
     mutating func addTransition(from fromStateId: UUID, to toStateId: UUID, symbols: [String] = [], isEpsilon: Bool = false) -> Transition {
         let newTransition = Transition(
             fromStateId: fromStateId,
@@ -232,7 +223,6 @@ struct Automaton: Codable, Equatable, Sendable {
     }
     
     // MARK: - Utility Methods
-    
     func getState(by id: UUID) -> AutomatonState? {
         return states.first { $0.id == id }
     }
@@ -272,7 +262,6 @@ struct Automaton: Codable, Equatable, Sendable {
     }
     
     // MARK: - Validation
-    
     func validate() -> [String] {
         var errors: [String] = []
         
@@ -298,7 +287,6 @@ struct Automaton: Codable, Equatable, Sendable {
     }
     
     // MARK: - Equatable
-    
     static func == (lhs: Automaton, rhs: Automaton) -> Bool {
         return lhs.id == rhs.id &&
                lhs.name == rhs.name &&
@@ -307,7 +295,6 @@ struct Automaton: Codable, Equatable, Sendable {
                lhs.transitions == rhs.transitions &&
                lhs.alphabet == rhs.alphabet &&
                lhs.createdDate == rhs.createdDate &&
-               lhs.modifiedDate == rhs.modifiedDate &&
                lhs.author == rhs.author &&
                lhs.description == rhs.description &&
                lhs.tapeAlphabet == rhs.tapeAlphabet &&

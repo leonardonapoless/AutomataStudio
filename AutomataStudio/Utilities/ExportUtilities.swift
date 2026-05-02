@@ -6,7 +6,10 @@ struct ExportUtilities {
     // MARK: - DOT Export
     
     static func exportToDOT(_ automaton: Automaton) -> String {
-        var dot = "digraph \(automaton.name.replacingOccurrences(of: " ", with: "_")) {\n"
+        let safeName = automaton.name
+            .replacingOccurrences(of: " ", with: "_")
+            .filter { $0.isLetter || $0.isNumber || $0 == "_" }
+        var dot = "digraph \(safeName.isEmpty ? "automaton" : safeName) {\n"
         dot += "  rankdir=LR;\n"
         dot += "  node [shape=circle];\n\n"
         
@@ -81,12 +84,37 @@ struct ExportUtilities {
                 let y1 = Int(from.position.y)
                 let x2 = Int(to.position.x)
                 let y2 = Int(to.position.y)
+                let radius = 20
                 
-                svg += "  <line x1=\"\(x1)\" y1=\"\(y1)\" x2=\"\(x2)\" y2=\"\(y2)\" stroke=\"black\" stroke-width=\"2\" marker-end=\"url(#arrowhead)\"/>\n"
-                
-                let midX = (x1 + x2) / 2
-                let midY = (y1 + y2) / 2
-                svg += "  <text x=\"\(midX)\" y=\"\(midY - 5)\" text-anchor=\"middle\" font-family=\"Arial\" font-size=\"10\">\(transition.displaySymbols)</text>\n"
+                if from.id == to.id {
+                    let cx1 = x1 - 25
+                    let cy1 = y1 - radius - 30
+                    let cx2 = x1 + 25
+                    let cy2 = y1 - radius - 30
+                    let startX = x1 - 10
+                    let startY = y1 - radius
+                    let endX = x1 + 10
+                    let endY = y1 - radius
+                    svg += "  <path d=\"M \(startX) \(startY) C \(cx1) \(cy1), \(cx2) \(cy2), \(endX) \(endY)\" fill=\"none\" stroke=\"black\" stroke-width=\"2\" marker-end=\"url(#arrowhead)\"/>\n"
+                    svg += "  <text x=\"\(x1)\" y=\"\(y1 - radius - 35)\" text-anchor=\"middle\" font-family=\"Arial\" font-size=\"10\">\(transition.displaySymbols)</text>\n"
+                } else {
+                    let dx = Double(x2 - x1)
+                    let dy = Double(y2 - y1)
+                    let len = sqrt(dx * dx + dy * dy)
+                    guard len > 0 else { continue }
+                    let ux = dx / len
+                    let uy = dy / len
+                    let sx = Int(Double(x1) + ux * Double(radius))
+                    let sy = Int(Double(y1) + uy * Double(radius))
+                    let ex = Int(Double(x2) - ux * Double(radius))
+                    let ey = Int(Double(y2) - uy * Double(radius))
+                    
+                    svg += "  <line x1=\"\(sx)\" y1=\"\(sy)\" x2=\"\(ex)\" y2=\"\(ey)\" stroke=\"black\" stroke-width=\"2\" marker-end=\"url(#arrowhead)\"/>\n"
+                    
+                    let midX = (sx + ex) / 2
+                    let midY = (sy + ey) / 2
+                    svg += "  <text x=\"\(midX)\" y=\"\(midY - 5)\" text-anchor=\"middle\" font-family=\"Arial\" font-size=\"10\">\(transition.displaySymbols)</text>\n"
+                }
             }
         }
         

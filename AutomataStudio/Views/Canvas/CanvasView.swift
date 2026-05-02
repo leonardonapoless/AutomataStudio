@@ -28,6 +28,7 @@ struct CanvasView: View {
     @State private var scrollMonitor: Any?
     @State private var rightClickMonitor: Any?
     @State private var canvasFrame: CGRect = .zero
+    @State private var coordinateConverter: NSView?
     
     var body: some View {
         GeometryReader { geometry in
@@ -35,6 +36,8 @@ struct CanvasView: View {
                 Rectangle()
                     .fill(Color(nsColor: .windowBackgroundColor))
                     .ignoresSafeArea()
+                
+                LocalCoordinateSpace(converter: $coordinateConverter)
                 
                 if viewModel.showGrid {
                     GridView(
@@ -108,9 +111,13 @@ struct CanvasView: View {
             .background(
                 GeometryReader { geo in
                     Color.clear
-                        .onAppear { canvasFrame = geo.frame(in: .global) }
+                        .onAppear {
+                            canvasFrame = geo.frame(in: .global)
+                            viewModel.canvasSize = geo.size
+                        }
                         .onChange(of: geo.frame(in: .global)) { _, newFrame in
                             canvasFrame = newFrame
+                            viewModel.canvasSize = geo.size
                         }
                 }
             )
@@ -120,7 +127,6 @@ struct CanvasView: View {
     }
     
     // MARK: - Primary Drag Gesture
-    
     private var primaryDragGesture: some Gesture {
         DragGesture(minimumDistance: 3)
             .onChanged { value in
@@ -229,8 +235,7 @@ struct CanvasView: View {
             }
     }
     
-    // MARK: - Magnify Gesture (pinch to zoom)
-    
+    // MARK: - Magnify Gesture (pinch to zoom) 
     private var magnifyGesture: some Gesture {
         MagnifyGesture()
             .onChanged { value in
@@ -250,22 +255,15 @@ struct CanvasView: View {
     }
     
     // MARK: - Scroll Wheel Monitor 
-    
     private func installEventMonitors() {
         scrollMonitor = NSEvent.addLocalMonitorForEvents(matching: .scrollWheel) { event in
-            guard let window = event.window, let contentView = window.contentView else { return event }
-            let windowPoint = event.locationInWindow
+            guard let converter = coordinateConverter, let window = converter.window, event.window == window else { return event }
             
-            let globalPoint = CGPoint(x: windowPoint.x, y: contentView.bounds.height - windowPoint.y)
-            
-            guard canvasFrame.contains(globalPoint) else { return event }
+            let localPoint = converter.convert(event.locationInWindow, from: nil)
+            guard converter.bounds.contains(localPoint) else { return event }
             
             if event.modifierFlags.contains(.command) {
                 let zoomDelta = -event.scrollingDeltaY
-                let localPoint = CGPoint(
-                    x: globalPoint.x - canvasFrame.minX,
-                    y: globalPoint.y - canvasFrame.minY
-                )
                 viewModel.applyScrollZoom(zoomDelta, at: localPoint)
                 return nil
             } else {
@@ -277,17 +275,11 @@ struct CanvasView: View {
         }
         
         rightClickMonitor = NSEvent.addLocalMonitorForEvents(matching: .rightMouseDown) { event in
-            guard let window = event.window, let contentView = window.contentView else { return event }
-            let windowPoint = event.locationInWindow
+            guard let converter = coordinateConverter, let window = converter.window, event.window == window else { return event }
             
-            let globalPoint = CGPoint(x: windowPoint.x, y: contentView.bounds.height - windowPoint.y)
+            let localPoint = converter.convert(event.locationInWindow, from: nil)
+            guard converter.bounds.contains(localPoint) else { return event }
             
-            guard canvasFrame.contains(globalPoint) else { return event }
-            
-            let localPoint = CGPoint(
-                x: globalPoint.x - canvasFrame.minX,
-                y: globalPoint.y - canvasFrame.minY
-            )
             let canvasLocation = convertToCanvasLocation(localPoint)
             
             if let state = findStateAt(canvasLocation) {
@@ -320,7 +312,6 @@ struct CanvasView: View {
     }
     
     // MARK: - Native Context Menu
-    
     private enum ContextMenuTarget {
         case state(AutomatonState)
         case transition(Transition)
@@ -342,15 +333,15 @@ struct CanvasView: View {
                 state.isStart ? "Remove Start" : "Set as Start",
                 icon: "play.fill"
             ) {
-                var updated = state
+                self.viewModel.registerUndo(oldAutomaton: self.viewModel.automaton)
                 if !state.isStart {
-                    for var s in self.automaton.states where s.isStart {
-                        s.isStart = false
-                        self.viewModel.updateState(s)
+                    for i in self.viewModel.automaton.states.indices where self.viewModel.automaton.states[i].isStart {
+                        self.viewModel.automaton.states[i].isStart = false
                     }
                 }
-                updated.isStart.toggle()
-                self.viewModel.updateState(updated)
+                if let idx = self.viewModel.automaton.states.firstIndex(where: { $0.id == state.id }) {
+                    self.viewModel.automaton.states[idx].isStart = !state.isStart
+                }
             }
             
             builder.addItem(
@@ -396,7 +387,6 @@ struct CanvasView: View {
     }
     
     // MARK: - Tap Handlers
-    
     private func handleSingleTap(at location: CGPoint) {
         let canvasLocation = convertToCanvasLocation(location)
         
@@ -435,7 +425,7 @@ struct CanvasView: View {
             selectedStates = []
             selectedTransitions = [transition.id]
             onEditTransition?(transition.id)
-        } else {
+        } else if canvasMode != .transition {
             let newState = viewModel.addState(at: canvasLocation)
             selectedStates = [newState.id]
             selectedTransitions = []
@@ -444,7 +434,6 @@ struct CanvasView: View {
     }
     
     // MARK: - Hover
-    
     private func handleHover(_ phase: HoverPhase) {
         switch phase {
         case .active(let location):
@@ -484,7 +473,6 @@ struct CanvasView: View {
     }
     
     // MARK: - Drawing
-    
     private func drawAutomaton(context: GraphicsContext, size: CGSize, date: Date) {
         for transition in automaton.transitions {
             drawTransition(transition, context: context, date: date)
@@ -499,7 +487,6 @@ struct CanvasView: View {
         let isSelected = selectedStates.contains(state.id)
         let isHovered = hoveredState == state.id
         
-        // Dynamic animation duration based on playback speed
         let animationDuration = 0.5 / viewModel.playbackSpeed
         let progress = min(1.0, max(0, date.timeIntervalSince(viewModel.lastStepTime) / animationDuration))
         
@@ -551,32 +538,23 @@ struct CanvasView: View {
         
         let path = transitionPath(from: fromState.position, to: toState.position, isSelfLoop: isSelfLoop)
         
-        // base line
         let baseColor: Color = isSelected ? .accentColor : .primary
         let lineWidth: CGFloat = isSelected ? 3 : 2
         context.stroke(path, with: .color(baseColor), lineWidth: lineWidth)
-        
-        // simulation fill animation
-        if isActive {
-            let animationDuration = 0.5 / viewModel.playbackSpeed
-            let progress = min(1.0, max(0, date.timeIntervalSince(viewModel.lastStepTime) / animationDuration))
-            let trimmedPath = path.trimmedPath(from: 0, to: progress)
-            
-            var simulationColor: Color = .green
-            if let result = viewModel.simulationResult, !result.accepted {
-                simulationColor = .red
-            } else if viewModel.isCurrentStepInvalid {
-                simulationColor = .orange
-            }
-            
-            context.stroke(trimmedPath, with: .color(simulationColor), style: StrokeStyle(lineWidth: lineWidth + 1, lineCap: .round))
-        }
         
         var simulationColor: Color = .green
         if let result = viewModel.simulationResult, !result.accepted {
             simulationColor = .red
         } else if viewModel.isCurrentStepInvalid {
             simulationColor = .orange
+        }
+        
+        // simulation fill animation
+        if isActive {
+            let animationDuration = 0.5 / viewModel.playbackSpeed
+            let progress = min(1.0, max(0, date.timeIntervalSince(viewModel.lastStepTime) / animationDuration))
+            let trimmedPath = path.trimmedPath(from: 0, to: progress)
+            context.stroke(trimmedPath, with: .color(simulationColor), style: StrokeStyle(lineWidth: lineWidth + 1, lineCap: .round))
         }
         
         drawArrowhead(on: path, isSelfLoop: isSelfLoop, color: isActive ? simulationColor : baseColor, context: context)
@@ -736,7 +714,6 @@ struct CanvasView: View {
     }
     
     // MARK: - Helper Methods
-    
     private func stateColor(for state: AutomatonState, isActive: Bool, simulationColor: Color) -> Color {
         if isActive {
             return simulationColor.opacity(0.7)
@@ -803,7 +780,6 @@ struct CanvasView: View {
     }
     
     // MARK: - Coordinate Conversion & Hit Testing
-    
     private func convertToCanvasLocation(_ location: CGPoint) -> CGPoint {
         return CGPoint(
             x: (location.x - viewModel.panOffset.width) / viewModel.zoomLevel,
@@ -814,21 +790,29 @@ struct CanvasView: View {
     private func findStateAt(_ location: CGPoint) -> AutomatonState? {
         let tolerance: CGFloat = 25
         
-        return automaton.states.first { state in
-            let distance = sqrt(
+        var closest: AutomatonState?
+        var closestDist: CGFloat = .greatestFiniteMagnitude
+        
+        for state in viewModel.automaton.states {
+            let dist = sqrt(
                 pow(state.position.x - location.x, 2) +
                 pow(state.position.y - location.y, 2)
             )
-            return distance <= tolerance
+            if dist <= tolerance && dist < closestDist {
+                closest = state
+                closestDist = dist
+            }
         }
+        
+        return closest
     }
     
     private func findTransitionAt(_ location: CGPoint) -> Transition? {
         let tolerance: CGFloat = 12
         
-        return automaton.transitions.first { transition in
-            guard let fromState = automaton.getState(by: transition.fromStateId),
-                  let toState = automaton.getState(by: transition.toStateId) else { return false }
+        return viewModel.automaton.transitions.first { transition in
+            guard let fromState = viewModel.automaton.getState(by: transition.fromStateId),
+                  let toState = viewModel.automaton.getState(by: transition.toStateId) else { return false }
             
             if fromState.id == toState.id {
                 return distanceToSelfLoop(location, center: fromState.position) <= tolerance
@@ -899,7 +883,6 @@ struct CanvasView: View {
 }
 
 // MARK: - Grid View
-
 struct GridView: View {
     let gridSize: CGFloat
     let zoomLevel: CGFloat
@@ -947,4 +930,24 @@ struct GridView: View {
         selectedTransitions: Binding<Set<UUID>>.constant(Set<UUID>()),
         viewModel: CanvasViewModel()
     )
+}
+
+struct LocalCoordinateSpace: NSViewRepresentable {
+    @Binding var converter: NSView?
+
+    func makeNSView(context: Context) -> NSView {
+        let view = FlippedNSView()
+        DispatchQueue.main.async { converter = view }
+        return view
+    }
+
+    func updateNSView(_ nsView: NSView, context: Context) {}
+}
+
+class FlippedNSView: NSView {
+    override var isFlipped: Bool { true }
+    
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        return nil
+    }
 }
