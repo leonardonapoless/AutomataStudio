@@ -103,17 +103,23 @@ class InspectorViewModel: ObservableObject {
             .filter { !$0.isEmpty }
         
         transition.symbols = symbols
-        transition.isEpsilon = symbols.isEmpty && !editingTransitionSymbols.isEmpty
         
         automaton.updateTransition(transition)
         selectedTransition = transition
     }
     
     func addEpsilonTransition() {
-        guard selectedTransition != nil else { return }
+        guard var transition = selectedTransition else { return }
+        registerUndo(oldAutomaton: automaton)
         
-        editingTransitionSymbols = "ε"
-        updateSelectedTransition()
+        transition.isEpsilon.toggle()
+        if transition.isEpsilon {
+            transition.symbols = []
+            editingTransitionSymbols = ""
+        }
+        
+        automaton.updateTransition(transition)
+        selectedTransition = transition
     }
     
     // MARK: - Automaton Properties

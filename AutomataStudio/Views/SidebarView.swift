@@ -56,7 +56,6 @@ struct SidebarView: View {
 }
 
 // MARK: - Navigator Components
-
 struct NavigatorView: View {
     let automaton: Automaton
     @Binding var selectedStates: Set<UUID>
@@ -99,7 +98,16 @@ struct NavigatorView: View {
                 Section("Transitions (\(automaton.transitions.count))") {
                     ForEach(automaton.transitions) { transition in
                         TransitionRowView(transition: transition, automaton: automaton)
-                            .tag(transition.id)
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                selectedStates = []
+                                selectedTransitions = [transition.id]
+                            }
+                            .listRowBackground(
+                                selectedTransitions.contains(transition.id)
+                                    ? Color.accentColor.opacity(0.2)
+                                    : Color.clear
+                            )
                     }
                 }
             }
@@ -212,6 +220,14 @@ struct InspectorContentView: View {
                 viewModel.selectTransition(automaton.transitions.first { $0.id == new.first! })
             } else {
                 viewModel.selectTransition(nil)
+            }
+        }
+        .onChange(of: automaton) { _, newAutomaton in
+            if selectedStates.count == 1 {
+                viewModel.selectState(newAutomaton.getState(by: selectedStates.first!))
+            }
+            if selectedTransitions.count == 1 {
+                viewModel.selectTransition(newAutomaton.transitions.first { $0.id == selectedTransitions.first! })
             }
         }
     }

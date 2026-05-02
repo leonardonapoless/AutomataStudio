@@ -8,6 +8,7 @@ class CanvasViewModel: ObservableObject {
     @Published var showGrid: Bool = true
     @Published var gridSize: CGFloat = 20.0
     @Published var snapToGrid: Bool = true
+    @Published var canvasSize: CGSize = CGSize(width: 800, height: 600)
     
     @Published var isSimulating: Bool = false
     @Published var simulationStep: Int = 0
@@ -74,7 +75,7 @@ class CanvasViewModel: ObservableObject {
         guard !automaton.states.isEmpty else { return }
         
         let bounds = calculateAutomatonBounds()
-        let canvasSize = CGSize(width: 800, height: 600) 
+        let canvasSize = self.canvasSize
         
         let scaleX = canvasSize.width / bounds.width
         let scaleY = canvasSize.height / bounds.height
@@ -284,7 +285,8 @@ class CanvasViewModel: ObservableObject {
         lastStepTime = .now
         
         if isCurrentStepInvalid || simulationStep >= simulationInput.count {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+            let delay = max(0.5, 1.5 / playbackSpeed)
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
                 guard let self = self else { return }
                 if self.isSimulating {
                     self.finishSimulation()

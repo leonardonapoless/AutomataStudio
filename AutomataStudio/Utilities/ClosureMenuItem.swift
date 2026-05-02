@@ -25,6 +25,7 @@ final class ContextMenuBuilder {
         
         let item = NSMenuItem(title: title, action: #selector(MenuActionTarget.executeAction), keyEquivalent: "")
         item.target = target
+        item.representedObject = target
         if let icon = icon {
             item.image = NSImage(systemSymbolName: icon, accessibilityDescription: title)
         }
@@ -37,6 +38,7 @@ final class ContextMenuBuilder {
         
         let item = NSMenuItem(title: title, action: #selector(MenuActionTarget.executeAction), keyEquivalent: "")
         item.target = target
+        item.representedObject = target
         item.attributedTitle = NSAttributedString(
             string: title,
             attributes: [.foregroundColor: NSColor.systemRed]

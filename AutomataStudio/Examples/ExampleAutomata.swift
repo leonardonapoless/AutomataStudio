@@ -88,11 +88,11 @@ struct ExampleAutomata {
         return automaton
     }
     
-    // MARK: - Palindrome DFA (simplified)
+    // MARK: - Length ≤ 3 DFA
     
-    static func palindromeDFA() -> Automaton {
+    static func maxLengthThreeDFA() -> Automaton {
         var automaton = Automaton(
-            name: "Palindrome (Length ≤ 3)",
+            name: "Length ≤ 3",
             type: .dfa,
         )
         
@@ -123,6 +123,56 @@ struct ExampleAutomata {
         return automaton
     }
     
+    // MARK: - Palindrome DFA (length ≤ 3)
+    
+    static func palindromeDFA() -> Automaton {
+        var automaton = Automaton(
+            name: "Palindromes (Length ≤ 3)",
+            type: .dfa,
+        )
+        
+        let q0   = AutomatonState(name: "q0",   position: CGPoint(x: 300, y: 80),  isStart: true,  isAccepting: true)
+        let qA   = AutomatonState(name: "qA",   position: CGPoint(x: 150, y: 180), isStart: false, isAccepting: true)
+        let qB   = AutomatonState(name: "qB",   position: CGPoint(x: 450, y: 180), isStart: false, isAccepting: true)
+        let qAA  = AutomatonState(name: "qAA",  position: CGPoint(x: 80,  y: 300), isStart: false, isAccepting: true)
+        let qAB  = AutomatonState(name: "qAB",  position: CGPoint(x: 220, y: 300), isStart: false, isAccepting: false)
+        let qBA  = AutomatonState(name: "qBA",  position: CGPoint(x: 380, y: 300), isStart: false, isAccepting: false)
+        let qBB  = AutomatonState(name: "qBB",  position: CGPoint(x: 520, y: 300), isStart: false, isAccepting: true)
+        let qAcc = AutomatonState(name: "qAcc", position: CGPoint(x: 200, y: 420), isStart: false, isAccepting: true)
+        let qRej = AutomatonState(name: "qRej", position: CGPoint(x: 400, y: 420), isStart: false, isAccepting: false)
+        let dead = AutomatonState(name: "dead", position: CGPoint(x: 300, y: 540), isStart: false, isAccepting: false)
+        
+        automaton.states = [q0, qA, qB, qAA, qAB, qBA, qBB, qAcc, qRej, dead]
+        
+        let transitions = [
+            Transition(fromStateId: q0.id,   toStateId: qA.id,   symbols: ["a"]),
+            Transition(fromStateId: q0.id,   toStateId: qB.id,   symbols: ["b"]),
+            
+            Transition(fromStateId: qA.id,   toStateId: qAA.id,  symbols: ["a"]),
+            Transition(fromStateId: qA.id,   toStateId: qAB.id,  symbols: ["b"]),
+            Transition(fromStateId: qB.id,   toStateId: qBA.id,  symbols: ["a"]),
+            Transition(fromStateId: qB.id,   toStateId: qBB.id,  symbols: ["b"]),
+            
+            Transition(fromStateId: qAA.id,  toStateId: qAcc.id, symbols: ["a"]),
+            Transition(fromStateId: qAA.id,  toStateId: qRej.id, symbols: ["b"]),
+            Transition(fromStateId: qAB.id,  toStateId: qAcc.id, symbols: ["a"]),
+            Transition(fromStateId: qAB.id,  toStateId: qRej.id, symbols: ["b"]),
+            Transition(fromStateId: qBA.id,  toStateId: qRej.id, symbols: ["a"]),
+            Transition(fromStateId: qBA.id,  toStateId: qAcc.id, symbols: ["b"]),
+            Transition(fromStateId: qBB.id,  toStateId: qRej.id, symbols: ["a"]),
+            Transition(fromStateId: qBB.id,  toStateId: qAcc.id, symbols: ["b"]),
+            
+            Transition(fromStateId: qAcc.id, toStateId: dead.id, symbols: ["a", "b"]),
+            Transition(fromStateId: qRej.id, toStateId: dead.id, symbols: ["a", "b"]),
+            Transition(fromStateId: dead.id,  toStateId: dead.id, symbols: ["a", "b"]),
+        ]
+        
+        automaton.transitions = transitions
+        automaton.alphabet = ["a", "b"]
+        
+        return automaton
+    }
+    
     // MARK: - All Examples
     
     static func allExamples() -> [Automaton] {
@@ -130,6 +180,7 @@ struct ExampleAutomata {
             binaryDivisibleByThree(),
             abbPatternNFA(),
             binaryIncrementTM(),
+            maxLengthThreeDFA(),
             palindromeDFA()
         ]
     }
