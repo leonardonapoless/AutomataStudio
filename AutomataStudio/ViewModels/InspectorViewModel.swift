@@ -2,7 +2,16 @@ import SwiftUI
 import Combine
 
 class InspectorViewModel: ObservableObject {
-    @Published var automaton: Automaton
+    @Published var automaton: Automaton {
+        didSet {
+            if let current = selectedState {
+                selectedState = automaton.getState(by: current.id)
+            }
+            if let current = selectedTransition {
+                selectedTransition = automaton.transitions.first(where: { $0.id == current.id })
+            }
+        }
+    }
     @Published var selectedState: AutomatonState?
     @Published var selectedTransition: Transition?
     @Published var editingStateName: String = ""
