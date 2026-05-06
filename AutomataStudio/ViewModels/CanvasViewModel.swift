@@ -341,6 +341,7 @@ class CanvasViewModel: ObservableObject {
     }
     
     func finishSimulation() {
+        stopAutoSimulation()
         isSimulating = false
         
         let acceptingStates = Set(automaton.getAcceptingStates().map { $0.id })
